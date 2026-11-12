@@ -1,0 +1,51 @@
+ticket_id,text,category,priority
+TS-001,"I was charged twice for my monthly subscription this month, please refund the extra payment.",billing,high
+TS-002,"My invoice shows the wrong amount, I expected 1499 rupees but I was billed 1999 rupees.",billing,medium
+TS-003,"Please send me a copy of my receipt for last month, I need it for my office records.",billing,low
+TS-004,"My card payment failed three times but the money was still deducted from my bank account.",billing,high
+TS-005,"I want to cancel my plan before the next billing date and confirm I will not be charged again.",billing,medium
+TS-006,"I applied a discount code at checkout but the discount was not applied to my total.",billing,medium
+TS-007,"The subscription renewed automatically and I did not want it to renew, please help me stop it.",billing,medium
+TS-008,"Why is there a tax charge on my bill? I was not told about this extra fee before.",billing,low
+TS-009,"I paid for the yearly plan yesterday, but my account still shows the free plan.",billing,high
+TS-010,"Please update my billing address on the invoice, my office address has changed.",billing,low
+TS-011,"The app crashes every time I open the settings page on my Android phone.",technical,high
+TS-012,"I cannot upload a photo, the upload button does nothing after I select a file.",technical,medium
+TS-013,"The website loads very slowly in the evening, sometimes it takes more than a minute.",technical,medium
+TS-014,"I get an error 500 when I try to save my order, please fix this as soon as possible.",technical,high
+TS-015,"The search box is not working, it shows no results even for products I know are there.",technical,medium
+TS-016,"After the latest update, notifications are not coming to my phone at all.",technical,medium
+TS-017,"The login page keeps refreshing in a loop and I cannot sign in from Chrome.",technical,high
+TS-018,"The video on the product page does not play, it shows a black screen only.",technical,low
+TS-019,"My dashboard charts are blank since yesterday, the data is not loading.",technical,medium
+TS-020,"The app logs me out after five minutes even when I am actively using it.",technical,medium
+TS-021,"I forgot my password and the reset email is not arriving in my inbox or spam folder.",account,high
+TS-022,"Please change the email address on my account from my old Gmail to my new work email.",account,low
+TS-023,"I want to delete my account permanently and remove all my personal data.",account,medium
+TS-024,"My account is locked after too many wrong password attempts, please unlock it.",account,high
+TS-025,"I cannot change my phone number in my profile, the save button shows an error.",account,low
+TS-026,"Please help me merge my two accounts, I accidentally created a second one last week.",account,medium
+TS-027,"I need to update my name on the account, it is spelled wrong after registration.",account,low
+TS-028,"Someone else may have used my account, I see a login from a city I have never visited.",account,high
+TS-029,"How do I turn on two-factor authentication for my account for extra security?",account,low
+TS-030,"My profile picture will not update, I uploaded a new photo but the old one is still showing.",account,low
+TS-031,"My order was expected yesterday but it has not arrived yet, please check the status.",delivery,high
+TS-032,"The courier marked my parcel as delivered, but I never received anything at my home.",delivery,high
+TS-033,"Please change the delivery address for my order, I gave the wrong house number.",delivery,medium
+TS-034,"My parcel is stuck at the same location for three days, can you tell me when it will move?",delivery,medium
+TS-035,"I want to know the delivery charges for Lahore before I place my order.",delivery,low
+TS-036,"The package arrived damaged, the box was open and one item inside is broken.",delivery,high
+TS-037,"Can I collect my order from your shop instead of home delivery?",delivery,low
+TS-038,"The delivery rider called me but I missed the call, please ask him to come again today.",delivery,medium
+TS-039,"My order tracking page shows no update since last Friday, is my order lost?",delivery,medium
+TS-040,"Please deliver my order after 6 pm, nobody is at home during the day.",delivery,low
+TS-041,"Thank you for the quick help yesterday, the support team solved my issue very fast.",other,low
+TS-042,"I have a suggestion: please add a dark mode to the app, it will be easier on the eyes at night.",other,low
+TS-043,"Do you have a shop in Karachi where I can visit and see the products in person?",other,low
+TS-044,"What are your office opening hours on Saturday and Sunday?",other,low
+TS-045,"I would like to give feedback about the new website design, it looks much better now.",other,low
+TS-046,"Can you tell me more about the warranty for the watch I bought last month?",other,medium
+TS-047,"I am writing to say the delivery rider was very polite and helpful, please thank him.",other,low
+TS-048,"Is there a student discount available for your training course?",other,low
+TS-049,"Please call me back when you are free, I have a question about returning a gift item.",other,medium
+TS-050,"I need help in Urdu, my English is not good and I cannot explain my problem in English.",other,medium

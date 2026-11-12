@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Data / models (large artifacts stay out; small demo CSV is intentionally kept)
+models/*.joblib
+models/*.pkl
+data/*.csv
+!data/demo_tickets.csv
+
+# Reports / notebooks checkpoints
+reports/*.png
+.ipynb_checkpoints/
+.pytest_cache/
