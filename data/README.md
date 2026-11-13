@@ -4,7 +4,7 @@
 
 | File | Contents |
 |---|---|
-| `demo_tickets.csv` | 50 hand-written example support tickets (synthetic demo data) |
+| `demo_tickets.csv` | 200 hand-written example support tickets (synthetic demo data) |
 
 ## The demo dataset
 
@@ -12,11 +12,16 @@
 demonstration data, not real customer tickets**. No real customer,
 student, or company data is used anywhere in this project.
 
+**Source and licence:** hand-written for this project. There is
+no licence restriction on it, because no outside work was copied
+into it, and it contains no real customer data. It may be used,
+shared and changed freely as part of this project.
+
 ### Schema
 
 | Column | Meaning | Allowed values |
 |---|---|---|
-| `ticket_id` | Unique id, `TS-001` … `TS-050` | unique, non-empty |
+| `ticket_id` | Unique id, `TS-001` … `TS-200` | unique, non-empty |
 | `text` | The ticket message, one sentence | non-empty English text |
 | `category` | What the ticket is about | `billing`, `technical`, `account`, `delivery`, `other` |
 | `priority` | How urgent it is | `low`, `medium`, `high` |
@@ -29,19 +34,20 @@ cannot silently drift apart.
 
 ### Balance (from `summarise()`)
 
-- Rows: **50**
-- Category: 10 each — billing 10, technical 10, account 10,
-  delivery 10, other 10 (perfectly balanced *by construction*).
-- Priority: high 12, medium 19, low 19 — uneven on purpose, because
+- Rows: **200**
+- Category: 40 each — billing 40, technical 40, account 40,
+  delivery 40, other 40 (perfectly balanced *by construction*).
+- Priority: high 48, medium 75, low 77 — uneven on purpose, because
   most real tickets are not high priority. Exact counts are printed
   by `python -m ticketsense.data` (see main README).
 - Missing values: 0. Duplicate rows: 0. Duplicate texts: 0.
 
 ### Limitations — read before trusting any model trained on this
 
-1. **Tiny (50 rows).** A model trained on 50 examples will not
-   generalise. This set exists only to build and test the pipeline
-   (loading, validation, split, baseline) end-to-end.
+1. **Still small (200 rows).** A model trained on 200 examples
+   will not generalise to real support queues. This set exists
+   only to build and test the pipeline (loading, validation,
+   split, baseline) end-to-end.
 2. **Hand-written and clean.** Real tickets have typos, mixed
    languages (including Roman Urdu/Urdu), slang, screenshots,
    order numbers and PII. None of that is in this set.
@@ -53,10 +59,9 @@ cannot silently drift apart.
 5. **No leakage check can be meaningful at this size** — there are
    no near-duplicate real tickets to catch yet.
 
-This set will be kept for pipeline tests, and used only for the
-first baseline smoke test. A larger, properly
-licensed dataset (or a clearly documented larger synthetic set)
-must replace it before any performance claim is made.
+This set will be kept for pipeline tests and for the first
+baseline smoke test. A larger, properly licensed dataset must
+replace it before any performance claim is made.
 
 ## Public datasets considered (none downloaded)
 
@@ -64,18 +69,22 @@ No external dataset was downloaded, deliberately, because
 the plan forbids using a dataset without checking its licence and
 permitted use. What was considered:
 
-| Option | Why it was NOT used |
-|---|---|
-| Kaggle "customer support tickets" sets | Many are re-uploads with no clear licence, no source, and no label policy. Downloading one would need a Kaggle account and a per-file licence check. |
-| Twitter / X customer-support conversations | Public posts, but noisy, short, full of handles/URLs, and the terms for redistribution/training need checking. Also a PII risk if real users are included. |
-| GitHub issues as "tickets" | Freely licensed in many repos, but issues are developer bug reports, not customer support tickets — wrong text style and wrong label meaning. |
-| Real customer tickets from any business | Private/confidential data. Never used without explicit owner permission, and never committed to a public repo. |
+| Option | Source and licence | Why it was NOT used |
+|---|---|---|
+| Kaggle "customer support tickets" sets | Kaggle re-uploads, licence unclear or missing | Many are re-uploads with no clear licence, no source, and no label policy. Downloading one would need a Kaggle account and a per-file licence check. |
+| Twitter / X customer-support conversations | Public posts on X, redistribution terms unclear | Noisy, short, full of handles/URLs, and the terms for redistribution/training need checking. Also a PII risk if real users are included. |
+| GitHub issues as "tickets" | Freely licensed in many repos | Issues are developer bug reports, not customer support tickets — wrong text style and wrong label meaning. |
+| Bitext customer support dataset | bitext.com / Hugging Face mirror, licence CDLA-Sharing-1.0 | About 27,000 question-answer pairs for intent detection, with 27 intents. It is not single tickets, it has no priority labels, and mapping its 27 intents to our 5 categories would mean inventing labels. |
+| "Enterprise NLP Classification 10K" | opendatabay.com listing, no licence stated | 10,000 tickets, but the listing states no licence and no clear original source, so permitted use cannot be verified. |
+| Hugging Face "ticket-classification" model | huggingface.co, model under Apache 2.0 | This is a trained model, not a dataset, and its training data has no stated source or licence. |
+| Real customer tickets from any business | Private/confidential data | Never used without explicit owner permission, and never committed to a public repo. |
 
-**Decision:** use the small synthetic demo set above,
-document the options honestly, and make the dataset choice the
-next task: pick one public set, record its exact source URL,
-licence, and permitted use in this file *before* downloading it,
-or deliberately build a larger synthetic set and label it as such.
+**Decision:** no real public dataset was cleanly usable — the
+ones with a clear licence do not fit our labels, and the ones
+that look like tickets have no clear licence. So the synthetic
+set was deliberately grown from 50 tickets to 200 tickets
+(40 per category), all hand-written for this project, with no
+real customer data in it. Nothing was downloaded.
 
 ## Rules
 

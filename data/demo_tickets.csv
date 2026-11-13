@@ -49,3 +49,153 @@ TS-047,"I am writing to say the delivery rider was very polite and helpful, plea
 TS-048,"Is there a student discount available for your training course?",other,low
 TS-049,"Please call me back when you are free, I have a question about returning a gift item.",other,medium
 TS-050,"I need help in Urdu, my English is not good and I cannot explain my problem in English.",other,medium
+TS-051,"I was charged for a subscription I cancelled last month, please refund the money today.",billing,high
+TS-052,"My bank deducted the payment twice and my order is still not confirmed, I need this fixed now.",billing,high
+TS-053,The invoice for my order is missing the discount I was promised at the time of ordering.,billing,medium
+TS-054,"Could you please send me a soft copy of my invoice for March, I need it for my records?",billing,low
+TS-055,I paid through JazzCash but the app still shows my payment as pending after two days.,billing,medium
+TS-056,"Someone used my card to pay for an order I never placed, please block the charge immediately.",billing,high
+TS-057,My refund was promised a week ago but the money has not come back to my account yet.,billing,medium
+TS-058,"What is the service fee on a cash on delivery order, I want to know before I order.",billing,low
+TS-059,"The yearly plan price on the website is different from what I was charged, please explain.",billing,medium
+TS-060,"Please update the name on my invoice, it still shows my old shop name.",billing,low
+TS-061,"I paid the full amount but my order shows unpaid, and the shop is asking me to pay again.",billing,high
+TS-062,Can I change my plan from monthly to yearly and pay only the difference?,billing,low
+TS-063,I would like a receipt for the payment I made yesterday through Easypaisa.,billing,low
+TS-064,"My card was declined even though I have enough balance, is there a problem with your payment page?",billing,medium
+TS-065,"The payment went through but I never got an order confirmation, and now I am worried my money is lost.",billing,high
+TS-066,Do you charge extra for paying by card instead of cash on delivery?,billing,low
+TS-067,"I want to pause my subscription for one month while I am travelling, how can I do that?",billing,medium
+TS-068,The discount voucher I received by email is showing as expired even though it should work until next week.,billing,medium
+TS-069,Please tell me the total price including delivery before I confirm my order.,billing,low
+TS-070,"I was charged 5000 rupees for a plan that costs 3000 rupees, please correct this and refund the difference.",billing,high
+TS-071,My refund came back as store credit but I asked for the money back in my bank account.,billing,medium
+TS-072,"Can I pay in two parts, half now and half when the order arrives?",billing,low
+TS-073,The bill shows a delivery fee even though the website said delivery was free for this order.,billing,medium
+TS-074,"My subscription renewed today even though I turned off auto-renew last week, please refund me.",billing,medium
+TS-075,"I need the invoice in my company name, not my personal name, for my tax records.",billing,low
+TS-076,"The payment link you sent me is not opening, can you send a new one?",billing,medium
+TS-077,"I ordered with a promo code but the code was not accepted, even though it was valid yesterday.",billing,medium
+TS-078,What payment methods do you accept for large orders over 50000 rupees?,billing,low
+TS-079,"My card was charged three times for one order, please check and return the extra money.",billing,high
+TS-080,"I would like to change my billing cycle from the 1st of the month to the 15th, is that possible?",billing,low
+TS-081,"The app crashes as soon as I open it after the new update, I cannot use it at all.",technical,high
+TS-082,"The images on the website are not loading, I only see grey boxes.",technical,medium
+TS-083,"The app icon looks blurry on my phone, is that a known problem?",technical,low
+TS-084,"I cannot add more than one item to my cart, the button stops working after the first item.",technical,medium
+TS-085,"The checkout page shows an error every time I try to place an order, I have tried five times.",technical,high
+TS-086,"The website looks different on my tablet, the menu is hidden behind the logo.",technical,low
+TS-087,My order history is empty even though I have ordered many times before.,technical,medium
+TS-088,"The app freezes when I try to pay, and I am afraid my payment went through twice.",technical,high
+TS-089,"The search results show products that are out of stock, please fix the filter.",technical,medium
+TS-090,"Can the app work without internet, or does it always need a connection?",technical,low
+TS-091,The password field does not accept my password even though I typed it correctly.,technical,low
+TS-092,"I cannot open the app at all, it shows a white screen and then closes by itself.",technical,high
+TS-093,"The font size on the website is too small on my phone, can I make it bigger?",technical,low
+TS-094,"The delivery tracking map is not updating, it still shows the same location from yesterday.",technical,medium
+TS-095,"My account shows someone else's orders, I can see another customer's name and address.",technical,high
+TS-096,"The app keeps asking me to update, but the update never finishes downloading.",technical,medium
+TS-097,"The sound on the product videos is very low, even with my volume at full.",technical,low
+TS-098,I tried to upload my shop logo but the website says the file is too large.,technical,medium
+TS-099,"The website is down, I cannot open it at all and my customers are complaining.",technical,high
+TS-100,"Is there a way to use the website in Urdu, my father finds English difficult?",technical,low
+TS-101,The app logs me out every time I switch to another app and come back.,technical,medium
+TS-102,"My saved addresses disappeared after the update, I have to type them again every time.",technical,medium
+TS-103,"The colours on the website look washed out on my old laptop, is that normal?",technical,low
+TS-104,"I got an error saying my session expired while I was paying, and the money was deducted.",technical,high
+TS-105,"The order confirmation email never arrived, but the order appears in my account.",technical,low
+TS-106,"The app is using a lot of mobile data, is there a setting to reduce it?",technical,low
+TS-107,The categories on the home page are in the wrong order after the last update.,technical,low
+TS-108,The payment page keeps loading forever and never shows the confirmation screen.,technical,high
+TS-109,"Can I change the app language to Roman Urdu, I find it easier to read?",technical,low
+TS-110,"The notifications are delayed by hours, I only get them the next morning.",technical,medium
+TS-111,"I cannot log in at all, the app says my account does not exist even though I registered last week.",account,high
+TS-112,"How do I change my profile name, I got married and my name has changed?",account,low
+TS-113,"I want to close my old account, I have made a new one with a different email.",account,medium
+TS-114,"Someone changed my password without my knowledge, please help me recover my account now.",account,high
+TS-115,"Can I use the same email for two accounts, one for my shop and one for personal use?",account,low
+TS-116,My phone number is wrong in my profile and the verification code never arrives.,account,medium
+TS-117,"Please merge my Facebook login account with my email account, they are both mine.",account,medium
+TS-118,How do I download a copy of my personal data from my account?,account,low
+TS-119,"I received an email saying my account will be closed, is this real or a scam?",account,high
+TS-120,"My account was suspended for no reason, I did not break any rule that I know of.",account,medium
+TS-121,"I would like to change my username, the current one is my old shop name.",account,low
+TS-122,"The two-factor code arrives very late, by the time I get it the code has expired.",account,medium
+TS-123,"A stranger is using my account to place orders, please block the account immediately.",account,high
+TS-124,"Can I delete my order history, I do not want old orders to show on my account?",account,low
+TS-125,My email address is correct but the account recovery link is not working.,account,medium
+TS-126,How do I add my wife as a second user on my shop account?,account,low
+TS-127,I changed my phone and now I cannot log in because the old number is gone.,account,medium
+TS-128,My account balance shows zero even though I topped up 2000 rupees yesterday.,account,high
+TS-129,"Please update my date of birth on my profile, it was entered wrong during registration.",account,low
+TS-130,"I want to change the email linked to my account, but I no longer have access to the old one.",account,medium
+TS-131,"The app asks for my CNIC number, is it safe to share it here?",account,medium
+TS-132,"Can I use my account on two phones at the same time, my phone and my tablet?",account,low
+TS-133,"I keep getting login alerts from a city I have never been to, please secure my account.",account,high
+TS-134,"My profile photo keeps getting removed, is there a rule about photos I should know?",account,medium
+TS-135,"How do I turn off email notifications for offers, I only want order updates?",account,low
+TS-136,I registered with my work email but I want to switch to my personal Gmail.,account,medium
+TS-137,"My account was hacked and the email was changed, I cannot reset my password anymore.",account,high
+TS-138,What is the minimum age to create an account on your website?,account,low
+TS-139,"I cannot verify my account, the code sent to my email never arrives in my inbox.",account,medium
+TS-140,"Please show me how to log out of all devices at once, I used a shared computer yesterday.",account,low
+TS-141,"My parcel was supposed to arrive yesterday and it still has not come, I need it for my shop today.",delivery,high
+TS-142,"The courier tried to deliver while I was at work, can he come again in the evening?",delivery,medium
+TS-143,What are the delivery charges to Islamabad for a small parcel?,delivery,low
+TS-144,My order is showing as out for delivery since morning but nobody has called me yet.,delivery,medium
+TS-145,"The parcel arrived with half the items missing, two items from my order are not in the box.",delivery,high
+TS-146,Can I change my delivery from home to my office address before it is dispatched?,delivery,low
+TS-147,The delivery rider asked me to pay extra cash even though I had already paid online.,delivery,medium
+TS-148,"My parcel was delivered to the wrong address, a neighbour signed for it and I cannot find it.",delivery,high
+TS-149,"The tracking says my order is in Karachi but I live in Lahore, has it gone to the wrong city?",delivery,medium
+TS-150,"Do you deliver on Sunday, or should I expect my order on Monday?",delivery,low
+TS-151,I requested a delivery time slot but the rider came three hours early when nobody was home.,delivery,medium
+TS-152,"The box was badly damaged and the glass items inside are broken, I need a replacement urgently.",delivery,high
+TS-153,"Can I track my order without the tracking number, I lost the message with the details?",delivery,low
+TS-154,"My order has been in the warehouse for four days, why has it not been sent yet?",delivery,medium
+TS-155,"The courier says the parcel was returned to the seller, but I never refused any delivery.",delivery,high
+TS-156,"Please pack my order carefully, the last parcel had no bubble wrap and the items were loose.",delivery,medium
+TS-157,How long does delivery usually take to a village near Multan?,delivery,low
+TS-158,"The rider left my parcel at the gate without calling me, and it was stolen.",delivery,medium
+TS-159,I paid for express delivery but the parcel arrived after five days like a normal order.,delivery,high
+TS-160,Can I collect my parcel from the courier office instead of waiting at home?,delivery,low
+TS-161,"The delivery address on my order is correct, but the rider keeps going to my old house.",delivery,medium
+TS-162,"My parcel contains medicines that need to stay cold, and it arrived warm after two days in transit.",delivery,high
+TS-163,"Is there a way to leave instructions for the rider, like calling before arriving?",delivery,low
+TS-164,"The order was split into two parcels and only one has arrived, where is the second one?",delivery,medium
+TS-165,"I want to cancel my order because the delivery is taking too long, please confirm the cancellation.",delivery,low
+TS-166,What is the latest time I can place an order for delivery the same day?,delivery,low
+TS-167,"The rider was rude to my mother when she asked him to wait for two minutes, please look into this.",delivery,high
+TS-168,"My parcel arrived but the seal was broken, I am not sure if anything was taken out.",delivery,medium
+TS-169,"Do you deliver to my area in Faisalabad, or should I collect it from your shop?",delivery,low
+TS-170,"The tracking page shows my parcel is delivered, but I was at home all day and nobody came.",delivery,medium
+TS-171,"Thank you for the fast delivery, my order arrived a day early and everything was perfect.",other,low
+TS-172,"I have a suggestion, please add cash on delivery for orders below 1000 rupees as well.",other,low
+TS-173,Can you tell me if the watch I want is available in black colour before I order?,other,medium
+TS-174,"What is your return policy for clothes that do not fit, I want to know before buying?",other,medium
+TS-175,"I would like to order 20 gift baskets for a wedding, can you give me a discount on bulk orders?",other,medium
+TS-176,Do you have a physical shop in Rawalpindi where I can see the products?,other,low
+TS-177,"Please help urgently, someone is using my shop name on social media to cheat customers.",other,high
+TS-178,"I want to give feedback, the new packaging is much better than before.",other,low
+TS-179,"Is the smart watch waterproof, I want to wear it while washing my hands?",other,medium
+TS-180,What time does your customer service open in the morning?,other,low
+TS-181,"Can I return a gift item without a receipt, my brother bought it for me last month?",other,medium
+TS-182,"I love the new website, it is much easier to use than the old one.",other,low
+TS-183,"I need urgent help, a product I bought from you has a sharp edge and cut my hand.",other,high
+TS-184,"Do you offer any discount for teachers, I am buying gifts for my students?",other,low
+TS-185,"The earbuds I bought stopped working after one week, the warranty should cover this, please replace them urgently.",other,high
+TS-186,"Please thank the support agent who helped me yesterday, she was very polite.",other,low
+TS-187,I want to know if this product is original or a copy before I spend my money.,other,medium
+TS-188,"Can you recommend a good gift for my mother, something simple and useful?",other,low
+TS-189,"This is urgent, my shop sign board fell down in the storm and I need a replacement quickly.",other,high
+TS-190,"What is the best way to contact you, by phone or by WhatsApp?",other,low
+TS-191,"I am a shopkeeper and I want to sell your products in my shop, how can I become a reseller?",other,medium
+TS-192,"Is there a sale coming soon, I am waiting to buy a watch for my father?",other,low
+TS-193,"Please act quickly, a fake page is selling your products at half price and cheating people.",other,high
+TS-194,"Can you tell me the difference between the two watch models, they look the same to me?",other,medium
+TS-195,"I would like to suggest a new flavour for your pizza, a spicy chicken one would sell well.",other,low
+TS-196,"Do you have this item in stock in your Lahore branch, or only online?",other,medium
+TS-197,"Thank you, the issue with my order was solved and I am happy with the service.",other,low
+TS-198,"I need help right now, the product I received smells of chemicals and I am worried it is not safe.",other,high
+TS-199,"What are your working hours during Ramadan, do they change?",other,low
+TS-200,"I want to place an order for my office, can you send me a catalogue with prices?",other,medium

@@ -60,3 +60,44 @@
   duplicate report in `reports/`).
 - Then Day 3-4: validation and exploratory analysis; Day 5-6:
   train/test split and TF-IDF + Logistic Regression baseline.
+
+## Day 2 — 2026-11-13 (TicketSense)
+
+### What was done
+- Dataset decision: enlarge the synthetic set instead of downloading
+  a public set. No public support-ticket dataset was cleanly usable
+  (Kaggle re-uploads with unclear licences, Twitter/X data noisy
+  with PII risk, GitHub issues the wrong text type, real customer
+  data private). The enlarged set stays hand-written synthetic
+  data, so there is no licence restriction and no real customer
+  data anywhere in the project.
+- `data/demo_tickets.csv` grew from 50 to 200 hand-written tickets:
+  150 new tickets (TS-051–TS-200), 40 per category, priorities
+  high 48 / medium 75 / low 77.
+- `data/README.md` records the decision, the source and licence
+  ("hand-written for this project, no licence restriction"), the
+  new schema (TS-001…TS-200), the new balance, and the updated
+  limitations (still small at 200 rows; still clean hand-written
+  text; still perfectly balanced categories; priority labels are
+  judgement, not team policy).
+- `README.md` updated with the new totals.
+- Tests in `tests/test_data.py` updated for the 200-row set.
+
+### Tests / checks run (Day 2, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **12 passed**
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.data`
+  → Rows: 200; Missing values: all 0; Duplicate rows: 0;
+  Duplicate texts: 0; Category balance: 40 each;
+  Priority balance: low 77, medium 75, high 48
+- `git diff --check` — clean; no secrets in the diff.
+
+### Commits (local only — nothing pushed yet)
+- See `git log` in this repo. 2 real commits on Day 2.
+
+### Next steps — Day 3 (TicketSense)
+- Data validation, missing values, duplicates, label distribution
+  — largely done by the loader; next is exploratory analysis and
+  initial visualisations.
+- Then: train/test split and the TF-IDF + Logistic Regression
+  baseline.

@@ -13,7 +13,7 @@ DATA = Path(__file__).resolve().parents[1] / "data" / "demo_tickets.csv"
 def test_demo_dataset_loads_with_expected_schema():
     df = load_tickets(DATA)
     assert list(df.columns) == list(REQUIRED_COLUMNS)
-    assert len(df) == 50
+    assert len(df) == 200
     assert df["ticket_id"].is_unique
 
 
@@ -21,26 +21,32 @@ def test_demo_dataset_labels_are_all_valid():
     df = load_tickets(DATA)
     assert set(df["category"]) == {"billing", "technical", "account", "delivery", "other"}
     assert set(df["priority"]) == {"low", "medium", "high"}
-    # 10 tickets per category by construction; priority is intentionally uneven.
+    # 40 tickets per category by construction; priority is intentionally uneven.
     assert df["category"].value_counts().to_dict() == {
-        "billing": 10,
-        "technical": 10,
-        "account": 10,
-        "delivery": 10,
-        "other": 10,
+        "billing": 40,
+        "technical": 40,
+        "account": 40,
+        "delivery": 40,
+        "other": 40,
     }
-    assert df["priority"].value_counts().sum() == 50
+    assert df["priority"].value_counts().to_dict() == {
+        "high": 48,
+        "medium": 75,
+        "low": 77,
+    }
+    assert df["priority"].value_counts().sum() == 200
 
 
 def test_summary_reports_balance_and_no_missing_or_duplicates():
     df = load_tickets(DATA)
     summary = summarise(df)
-    assert summary["n_rows"] == 50
+    assert summary["n_rows"] == 200
     assert summary["missing_values"] == {c: 0 for c in REQUIRED_COLUMNS}
     assert summary["duplicate_rows"] == 0
     assert summary["duplicate_texts"] == 0
-    assert summary["category_counts"]["billing"] == 10
-    assert sum(summary["priority_counts"].values()) == 50
+    assert summary["category_counts"]["billing"] == 40
+    assert summary["priority_counts"] == {"high": 48, "medium": 75, "low": 77}
+    assert sum(summary["priority_counts"].values()) == 200
 
 
 def test_missing_file_raises():

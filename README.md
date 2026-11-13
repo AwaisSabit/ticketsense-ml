@@ -49,7 +49,7 @@ Streamlit *or* FastAPI — to be chosen after a model exists.
 ```text
 ticketsense-ml/
 ├── data/
-│   ├── demo_tickets.csv   # 50 hand-written synthetic demo tickets
+│   ├── demo_tickets.csv   # 200 hand-written synthetic demo tickets
 │   └── README.md          # schema, labels, licensing, limitations
 ├── notebooks/             # exploration
 ├── src/ticketsense/
@@ -83,13 +83,13 @@ PYTHONPATH=src python -m ticketsense.data
 PYTHONPATH=src python -m pytest -q
 ```
 
-Expected output: 50 rows, 0 missing values, 0 duplicates,
-category 10 each, priority high 12 / medium 19 / low 19.
+Expected output: 200 rows, 0 missing values, 0 duplicates,
+category 40 each, priority high 48 / medium 75 / low 77.
 
 ## Dataset and licensing
 
 This project currently uses **only** the hand-written synthetic set in
-`data/demo_tickets.csv` — 50 example tickets, no real customer
+`data/demo_tickets.csv` — 200 example tickets, no real customer
 data, no external download. See `data/README.md` for the schema,
 the public datasets considered and rejected so far (Kaggle
 re-uploads with unclear licences, Twitter support data with
