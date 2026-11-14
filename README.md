@@ -7,7 +7,10 @@ suggestion for a small support team, not an automatic decision.
 challenge, Nov–Dec 2026. Repo skeleton, target labels, a synthetic
 demo dataset, a tested data-loading module, and an exploratory
 analysis with a report (`reports/eda.md`) and balance charts exist.
-No model is trained yet.
+A first baseline model is trained: TF-IDF + Logistic Regression,
+one pipeline for category and one for priority, evaluated on a
+held-out test set — see `reports/evaluation.md` for the numbers.
+The saved pipelines live in `models/` (local only, git-ignored).
 
 ## Problem
 
@@ -57,8 +60,8 @@ ticketsense-ml/
 │   ├── data.py            # load + validate + summarise (tested)
 │   ├── features.py        # text cleaning; TF-IDF to follow
 │   ├── explore.py         # exploratory analysis + report (tested)
-│   ├── train.py           # skeleton; baseline to follow
-│   ├── evaluate.py        # skeleton; evaluation to follow
+│   ├── train.py           # stratified split + TF-IDF + Logistic Regression baseline (tested)
+│   ├── evaluate.py        # held-out evaluation + report (tested)
 │   ├── predict.py         # input validation; model to follow
 │   └── app.py             # skeleton; demo interface to follow
 ├── models/                # saved pipeline — binaries are git-ignored
@@ -84,12 +87,24 @@ PYTHONPATH=src python -m ticketsense.data
 # Run the exploratory analysis and write reports/eda.md
 PYTHONPATH=src python -m ticketsense.explore
 
+# Train the baseline (stratified 160/40 split, seed 42) and save
+# the two pipelines under models/ (local only, git-ignored)
+PYTHONPATH=src python -m ticketsense.train
+
+# Evaluate both pipelines on the held-out test set and write
+# reports/evaluation.md
+PYTHONPATH=src python -m ticketsense.evaluate
+
 # Run the tests
 PYTHONPATH=src python -m pytest -q
 ```
 
 Expected output: 200 rows, 0 missing values, 0 duplicates,
-category 40 each, priority high 48 / medium 75 / low 77.
+category 40 each, priority high 48 / medium 75 / low 77. Baseline
+results on the 40 held-out tickets: category accuracy 0.85,
+priority accuracy 0.525 (see `reports/evaluation.md` — small test
+set, so treat these as pipeline smoke-test numbers, not a
+performance claim).
 
 ## Dataset and licensing
 
@@ -104,8 +119,13 @@ exact source, licence and permitted use in `data/README.md` first.
 
 ## Limitations
 
-- **No model yet.** Nothing in this repo predicts anything yet;
-  `predict.py` deliberately returns no category/priority.
+- **The baseline is trained on 200 synthetic rows only.**
+  Category accuracy 0.85 and priority accuracy 0.525 on 40
+  held-out tickets show the pipeline works end to end; they are
+  not a performance claim. Priority is the weak half — most
+  high-priority tickets are missed (see `reports/evaluation.md`).
+  A larger, properly licensed dataset must replace the demo set
+  before any real claim is made.
 - **200 synthetic rows** cannot support a real performance claim.
   Any model trained on them is a pipeline smoke test only.
 - Priority labels are one person's judgement, not a support

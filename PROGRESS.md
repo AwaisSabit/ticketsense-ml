@@ -166,3 +166,72 @@
 
 ### Next steps — Day 4 (TicketSense)
 - Train/test split and the TF-IDF + Logistic Regression baseline.
+
+## Day 4 — 2026-11-14 (TicketSense)
+
+### What was done
+- Real training in `src/ticketsense/train.py` (was an honest
+  skeleton): `split_tickets()` makes a stratified split of the 200
+  tickets — 160 train / 40 test, 20% held out, fixed seed 42, 8
+  test tickets per category — and fails loudly if any ticket id or
+  text appears on both sides. `build_pipeline()` is TF-IDF (word
+  pairs, shared `clean_text` preprocessor) + Logistic Regression.
+  `train_baseline()` trains two pipelines on the same training
+  texts — one for category, one for priority — and saves them
+  with joblib to `models/category_pipeline.joblib` and
+  `models/priority_pipeline.joblib` (already git-ignored, so the
+  binaries stay local; only the text report is committed). The
+  vectoriser is fitted on the training split only, so no test text
+  enters the vocabulary. Runnable: `PYTHONPATH=src python -m
+  ticketsense.train`.
+- Real evaluation in `src/ticketsense/evaluate.py` (was an honest
+  skeleton): `evaluate_models()` replays the exact same split
+  (seed 42, 20%) and scores both saved pipelines on the held-out
+  test tickets — accuracy, macro precision/recall/F1, per-class
+  precision/recall/F1/support, and a confusion matrix for category
+  and for priority. `write_report()` writes the results to
+  `reports/evaluation.md` with the split details and honest
+  limitations. Runnable: `PYTHONPATH=src python -m
+  ticketsense.evaluate`.
+- Results on the 40 held-out tickets (full detail in
+  `reports/evaluation.md`): **category accuracy 0.85**, macro F1
+  0.8449 (delivery and `other` perfect, billing recall 0.625 the
+  weakest); **priority accuracy 0.525**, macro F1 0.4535 — the weak
+  half of the baseline. High-priority recall is only 0.0714: of 14
+  high test tickets, 10 were called medium and 3 low. Priority
+  labels are one person's judgement, so this is partly a labelling
+  problem, not just a model problem — recorded as a limitation,
+  not hidden.
+- README updated (no day numbers): status now says the baseline
+  exists, the train/evaluate commands are documented with the
+  headline numbers, and the limitations say what the numbers do
+  and do not mean.
+
+### Tests / checks run (Day 4, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **36 passed** (22 existing + 14 new: 8 in
+  `tests/test_train.py` — split sizes, stratification, no
+  overlap, same-seed reproducibility, different-seed difference,
+  empty and too-small inputs raise, pipeline fits and predicts
+  valid labels, `train_baseline` writes both loadable pipelines;
+  6 in `tests/test_evaluate.py` — metrics in range, confusion
+  matrix sums to 40, exact baseline numbers for the pinned demo
+  set and seed, report covers split/metrics/limits, missing model
+  file raises)
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.train`
+  → Train: 160 tickets; test: 40 tickets; both pipelines saved
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.evaluate`
+  → Category accuracy: 0.8500; Priority accuracy: 0.5250;
+  `reports/evaluation.md` written
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 4.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 5 (TicketSense)
+- Prediction with a confidence score and a low-confidence warning
+  (`predict.py`), using the saved pipelines; then the demo
+  interface (`app.py`).
