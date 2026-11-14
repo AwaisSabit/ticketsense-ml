@@ -14,5 +14,8 @@ data/*.csv
 
 # Reports / notebooks checkpoints
 reports/*.png
+# ...except the two small balance charts, which are part of the EDA report
+!reports/category_balance.png
+!reports/priority_balance.png
 .ipynb_checkpoints/
 .pytest_cache/

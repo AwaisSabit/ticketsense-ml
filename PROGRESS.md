@@ -101,3 +101,68 @@
   initial visualisations.
 - Then: train/test split and the TF-IDF + Logistic Regression
   baseline.
+
+## Day 3 — 2026-11-14 (TicketSense)
+
+### What was done
+- New module `src/ticketsense/explore.py` with pure analysis
+  functions that take a loaded dataframe and return plain dicts
+  (no printing inside them): text-length stats per category and
+  overall (word and character count: mean, median, min, max),
+  most common words per category (lower-cased, cleaned with the
+  existing `clean_text` helper, punctuation stripped so "update,"
+  counts as "update", and a small built-in English stopword list
+  — no new dependency), and a category-by-priority cross-tab.
+- `write_report()` writes a readable Markdown report to
+  `reports/eda.md` (row count, missing values, duplicates, label
+  distribution, length stats, top words per category, cross-tab,
+  and a plain-English "what this means" section stating the set
+  is small, clean, hand-written and perfectly balanced, so no
+  performance claim can be made from it). Runnable entry point:
+  `PYTHONPATH=src python -m ticketsense.explore`.
+- Initial visualisations: matplotlib installed cleanly in the
+  project `.venv` (3.9.2, pinned in `requirements.txt` with its
+  dependencies; numpy kept at the pinned 1.26.4 and contourpy
+  pinned to 1.2.1, the version compatible with it — `pip check`
+  is clean). Two bar charts generated into `reports/`:
+  `category_balance.png` (40 each) and `priority_balance.png`
+  (low 77, medium 75, high 48), both about 14 KB, and referenced
+  from `reports/eda.md`. `.gitignore` now allows exactly those
+  two PNGs (the general `reports/*.png` rule still stands).
+- Key numbers from the exploration (full detail in `reports/eda.md`):
+  200 rows, 0 missing values, 0 duplicate rows/texts. Ticket
+  length overall: mean 15.7 words (median 16, min 10, max 21),
+  mean 81.0 characters (median 81, min 57, max 114). Longest
+  category on average is billing (16.45 words); shortest is
+  technical (15.0 words). Top words: billing — order (11),
+  payment (9); technical — app (12), website (8); account —
+  account (26), email (13); delivery — order (16), delivery (13),
+  parcel (13); other — thank (5), watch (5). Cross-tab: high
+  priority is spread evenly (10–11 per category) except `other`
+  (6 high, 21 low) — the polite/thanks tickets sit in `other`.
+- Fixed the stale README line that still said "50 synthetic
+  rows" — it now says 200. README also mentions the new
+  exploration report and charts and the `ticketsense.explore`
+  command. No day numbers in any README.
+
+### Tests / checks run (Day 3, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **22 passed** (12 existing + 10 new in `tests/test_explore.py`:
+  length stats correct on a hand-made frame, stopwords excluded,
+  punctuation stripped from top words, cross-tab adds up to the
+  row count, report written with all key sections, charts written
+  as small PNGs, empty dataframe and missing column raise clear
+  errors)
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.explore`
+  → Rows: 200; category 40 each; priority low 77, medium 75,
+  high 48; both charts and `reports/eda.md` written
+- `git diff --check` — clean; no secrets in the diff; `.venv/`,
+  `__pycache__/`, models binaries ignored as before.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 2 real commits on Day 3.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 4 (TicketSense)
+- Train/test split and the TF-IDF + Logistic Regression baseline.

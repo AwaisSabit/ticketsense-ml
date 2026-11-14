@@ -5,8 +5,9 @@ suggestion for a small support team, not an automatic decision.
 
 **Status: work in progress.** Built as part of a 30-day portfolio
 challenge, Nov–Dec 2026. Repo skeleton, target labels, a synthetic
-demo dataset, and a tested data-loading module exist. No model is
-trained yet.
+demo dataset, a tested data-loading module, and an exploratory
+analysis with a report (`reports/eda.md`) and balance charts exist.
+No model is trained yet.
 
 ## Problem
 
@@ -55,12 +56,13 @@ ticketsense-ml/
 ├── src/ticketsense/
 │   ├── data.py            # load + validate + summarise (tested)
 │   ├── features.py        # text cleaning; TF-IDF to follow
+│   ├── explore.py         # exploratory analysis + report (tested)
 │   ├── train.py           # skeleton; baseline to follow
 │   ├── evaluate.py        # skeleton; evaluation to follow
 │   ├── predict.py         # input validation; model to follow
 │   └── app.py             # skeleton; demo interface to follow
 ├── models/                # saved pipeline — binaries are git-ignored
-├── reports/               # evaluation reports
+├── reports/               # exploration report (eda.md) + balance charts
 ├── tests/                 # pytest tests
 ├── requirements.txt
 ├── .gitignore
@@ -78,6 +80,9 @@ pip install -r requirements.txt
 
 # Load the demo data and print class balance
 PYTHONPATH=src python -m ticketsense.data
+
+# Run the exploratory analysis and write reports/eda.md
+PYTHONPATH=src python -m ticketsense.explore
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q
@@ -101,7 +106,7 @@ exact source, licence and permitted use in `data/README.md` first.
 
 - **No model yet.** Nothing in this repo predicts anything yet;
   `predict.py` deliberately returns no category/priority.
-- **50 synthetic rows** cannot support a real performance claim.
+- **200 synthetic rows** cannot support a real performance claim.
   Any model trained on them is a pipeline smoke test only.
 - Priority labels are one person's judgement, not a support
   team's agreed policy. Real tickets have typos, Roman Urdu/Urdu,
