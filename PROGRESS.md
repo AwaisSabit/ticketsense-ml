@@ -232,6 +232,93 @@
   run does the push.
 
 ### Next steps — Day 5 (TicketSense)
+- Error analysis of the baseline: which tickets it gets wrong,
+  confusion pairs, and a second-baseline comparison.
+- Then: prediction with a confidence score and a low-confidence
+  warning (`predict.py`), using the saved pipelines; then the demo
+  interface (`app.py`).
+
+## Day 5 — 2026-11-15 (TicketSense)
+
+### What was done
+- New module `src/ticketsense/errors.py` with pure analysis
+  functions that take the held-out test tickets and the two
+  trained pipelines: `misclassified()` lists every wrong ticket
+  for category and for priority (ticket id, text, true label,
+  predicted label), `confusion_pairs()` counts the off-diagonal
+  pairs most common first, and `weak_spots()` flags classes with
+  recall below 0.5. The same split is reused (stratified, seed
+  42, 160 train / 40 test) and the existing train/evaluate
+  helpers are reused — nothing is retrained differently.
+- `write_report()` writes `reports/error_analysis.md` (via a
+  `PYTHONPATH=src python -m ticketsense.errors` entry point)
+  covering the misclassified tickets with their texts, the
+  confusion pairs, the per-class weak spots, a plain-English
+  reading of what the errors mean, and the second-baseline
+  comparison. Two confusion-matrix charts are drawn into
+  `reports/` (`category_confusion.png`, 22 KB, and
+  `priority_confusion.png`, 16 KB) in the same matplotlib style
+  as the balance charts. The charts are local only — the
+  snapshot push is text-only, so they are git-ignored and the
+  Markdown report is what gets committed.
+- Second baseline comparison: TF-IDF + Multinomial Naive Bayes,
+  trained on the same 160 training tickets and scored on the
+  same 40 test tickets, with identical text cleaning and TF-IDF
+  settings so only the classifier differs.
+- Key numbers (full detail in `reports/error_analysis.md`):
+  category **6 of 40** tickets wrong, priority **19 of 40**
+  wrong. Top confusion pair is high priority called medium
+  (10 tickets); low called medium is next (5). No category weak
+  spot by the recall-below-half rule — billing is the weakest
+  category at recall 0.625 — but high priority is the real weak
+  spot at recall 0.0714 (1 of 14 found). Naive Bayes scored
+  category accuracy 0.825 / macro F1 0.8213 and priority
+  accuracy 0.500 / macro F1 0.4040, worse than Logistic
+  Regression on both tasks (0.85 / 0.8449 and 0.525 / 0.4535),
+  so Logistic Regression stays the baseline.
+- Plain-English reading, recorded honestly: category errors are
+  mostly near misses between related topics, and a couple of
+  the "errors" are arguably debatable labels. Priority errors
+  are a model problem first — several missed high tickets read
+  clearly urgent to a human (a stranger placing orders on your
+  account, a card charged three times, a product that cut
+  someone's hand) — and a labelling problem second, because
+  priority has no written rules for where medium ends and high
+  begins. The fix is both: agreed labelling rules written down,
+  and a model that is not afraid to predict high.
+- README updated (no day numbers): status, project layout,
+  run commands and limitations now cover the error analysis,
+  the charts and the Naive Bayes comparison.
+
+### Tests / checks run (Day 5, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **48 passed** (36 existing + 12 new in
+  `tests/test_errors.py`: misclassified list correct on a
+  hand-made frame, confusion pairs counted correctly with the
+  diagonal excluded, perfect predictions yield no errors, weak
+  spots flagged only below recall 0.5, exact error counts and
+  confusion pairs for the pinned demo set and seed, Naive Bayes
+  comparison runs with metrics in range and the real numbers,
+  report written with all key sections, both charts written as
+  PNGs, missing model files raise a clear error)
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.errors`
+  → Category misclassified: 6 of 40; Priority misclassified:
+  19 of 40; Naive Bayes category 0.8250, priority 0.5000;
+  both charts and `reports/error_analysis.md` written
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged;
+  the new confusion PNGs are git-ignored (local only) as
+  intended. The DeprecationWarnings in the test run (scipy
+  L-BFGS-B options, matplotlib text conversion) come from the
+  pinned library versions and already appear in the Day 3 chart
+  tests — they are not caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 5.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 6 (TicketSense)
 - Prediction with a confidence score and a low-confidence warning
   (`predict.py`), using the saved pipelines; then the demo
   interface (`app.py`).

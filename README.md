@@ -11,6 +11,11 @@ A first baseline model is trained: TF-IDF + Logistic Regression,
 one pipeline for category and one for priority, evaluated on a
 held-out test set — see `reports/evaluation.md` for the numbers.
 The saved pipelines live in `models/` (local only, git-ignored).
+The baseline's errors are analysed in `reports/error_analysis.md`
+(which tickets it gets wrong, the confusion pairs and the weak
+spots), with confusion-matrix charts in `reports/`, and a second
+baseline (TF-IDF + Naive Bayes, same split) is compared there —
+Logistic Regression stays the baseline.
 
 ## Problem
 
@@ -62,10 +67,13 @@ ticketsense-ml/
 │   ├── explore.py         # exploratory analysis + report (tested)
 │   ├── train.py           # stratified split + TF-IDF + Logistic Regression baseline (tested)
 │   ├── evaluate.py        # held-out evaluation + report (tested)
+│   ├── errors.py          # error analysis + Naive Bayes comparison + report (tested)
 │   ├── predict.py         # input validation; model to follow
 │   └── app.py             # skeleton; demo interface to follow
 ├── models/                # saved pipeline — binaries are git-ignored
 ├── reports/               # exploration report (eda.md) + balance charts
+│                          # + evaluation (evaluation.md) + error analysis
+│                          # (error_analysis.md) + confusion charts
 ├── tests/                 # pytest tests
 ├── requirements.txt
 ├── .gitignore
@@ -94,6 +102,11 @@ PYTHONPATH=src python -m ticketsense.train
 # Evaluate both pipelines on the held-out test set and write
 # reports/evaluation.md
 PYTHONPATH=src python -m ticketsense.evaluate
+
+# Analyse the baseline's errors and compare it with a Naive Bayes
+# second baseline, and write reports/error_analysis.md plus the
+# confusion-matrix charts in reports/ (charts are local only)
+PYTHONPATH=src python -m ticketsense.errors
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q
@@ -124,6 +137,14 @@ exact source, licence and permitted use in `data/README.md` first.
   held-out tickets show the pipeline works end to end; they are
   not a performance claim. Priority is the weak half — most
   high-priority tickets are missed (see `reports/evaluation.md`).
+  The error analysis (`reports/error_analysis.md`) shows why: the
+  model found only 1 of 14 high-priority test tickets, calling 10
+  medium and 3 low, including tickets a human would clearly call
+  urgent — so it systematically under-predicts high, and the
+  priority labels themselves have no written rules for where
+  medium ends and high begins. A Naive Bayes second baseline on
+  the same split scored lower on both tasks (category 0.825,
+  priority 0.500), so Logistic Regression stays the baseline.
   A larger, properly licensed dataset must replace the demo set
   before any real claim is made.
 - **200 synthetic rows** cannot support a real performance claim.
