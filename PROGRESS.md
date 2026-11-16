@@ -322,3 +322,87 @@
 - Prediction with a confidence score and a low-confidence warning
   (`predict.py`), using the saved pipelines; then the demo
   interface (`app.py`).
+
+## Day 6 — 2026-11-16 (TicketSense)
+
+### What was done
+- Real prediction in `src/ticketsense/predict.py` (was an honest
+  skeleton that only validated input): `load_models()` loads the
+  two saved pipelines and raises a clear error telling the user
+  to run the train command first when a model file is missing;
+  `predict_label()` returns one label with its confidence (the
+  probability the pipeline gives its top label);
+  `predict_ticket()` predicts category and priority for one
+  ticket text and returns both labels, a confidence score for
+  each, a `low_confidence` flag and a plain-English `warning`
+  when either score is below its threshold; `format_prediction()`
+  renders the result as plain-English lines. Runnable:
+  `PYTHONPATH=src python -m ticketsense.predict "ticket text"`.
+  Empty or blank text is rejected by the existing `clean_text`
+  validation, and missing model files exit with a clear error
+  instead of a traceback. The old `predict_text` name is kept
+  as a thin alias so existing callers keep working.
+- Thresholds measured, not guessed: the first guess was a
+  single 0.6 threshold, but measuring the saved model on the 40
+  held-out test tickets showed its probabilities are compressed
+  (category confidence only 0.22–0.47, median 0.31; priority
+  0.34–0.61, median 0.46), so 0.6 would flag every prediction
+  and the warning would carry no information. The thresholds
+  are per task instead — category 0.30 and priority 0.45 —
+  picked from that test set: category predictions at or above
+  0.30 were right 95% of the time (20 of 21) versus 74% below
+  it, and priority predictions at or above 0.45 were right 70%
+  (16 of 23) versus only 29% below it (5 of 17). Both values
+  and the measurement are documented in the module docstring
+  and in the README limitations, with the warning that the
+  scores are a ranking, not a probability of being right, and
+  need recalibration on a larger dataset.
+- Sample predictions written to `reports/prediction_examples.md`:
+  5 real runs of the module. All 5 category predictions match
+  what a person would say (billing 0.45, technical 0.48, other
+  0.27, other 0.35, delivery 0.39). The warning fired on 4 of
+  the 5, every time on the priority half — including the two
+  clearest tickets (priority 0.37 and 0.39) — which matches the
+  known weak priority half. The vague "hello I need some help
+  please" ticket warned on both halves (category 0.27, barely
+  above a random guess for five categories), and the thank-you
+  note passed cleanly with no warning (other 0.35, low 0.50).
+- README updated (no day numbers): status, project layout, run
+  commands and limitations now cover the prediction module,
+  the measured thresholds and the compressed-confidence caveat.
+
+### Tests / checks run (Day 6, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **65 passed** (48 existing + 17 new in
+  `tests/test_predict.py`: both pipelines load, missing files
+  raise a clear "train first" error, prediction returns labels
+  and confidences in range, clear billing/technical tickets get
+  the right category above threshold, the vague ticket warns on
+  both halves, the thank-you ticket has no warning, empty/blank/
+  non-string text raises, the thresholds control the warning
+  with tiny trained pipelines, the formatted output includes
+  the warning only when low, and the CLI prints a prediction
+  and exits with a clear error for empty text and missing
+  models. The stale Day 1 test in `tests/test_features.py`
+  that asserted "no prediction exists" was updated — a model
+  exists now, so `predict_text` returns a real prediction.)
+- `PYTHONPATH=src python -m ticketsense.predict "..."` on the
+  5 sample texts → see `reports/prediction_examples.md`; empty
+  text exits 1 with "Ticket text must not be empty", and a
+  missing model file exits 1 with "Train the baseline first"
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The DeprecationWarnings in the test run (scipy L-BFGS-B
+  options, matplotlib text conversion) come from the pinned
+  library versions and already appear in the Day 3/5 chart
+  tests — they are not caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 6.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 7 (TicketSense)
+- Demo interface (`app.py`): Streamlit or FastAPI, showing the
+  prediction with its confidence scores and the low-confidence
+  warning; then sample inputs and malformed-input tests.

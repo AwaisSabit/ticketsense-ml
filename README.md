@@ -15,7 +15,15 @@ The baseline's errors are analysed in `reports/error_analysis.md`
 (which tickets it gets wrong, the confusion pairs and the weak
 spots), with confusion-matrix charts in `reports/`, and a second
 baseline (TF-IDF + Naive Bayes, same split) is compared there —
-Logistic Regression stays the baseline.
+Logistic Regression stays the baseline. Prediction now works:
+`PYTHONPATH=src python -m ticketsense.predict "ticket text"`
+prints the predicted category and priority with a confidence
+score for each, plus a plain-English low-confidence warning
+when either score is below its threshold (category 0.30,
+priority 0.45 — measured on the held-out test set, because
+this model's probabilities are compressed and a single 0.6
+threshold would flag every prediction). Sample predictions
+with their confidences are in `reports/prediction_examples.md`.
 
 ## Problem
 
@@ -68,12 +76,13 @@ ticketsense-ml/
 │   ├── train.py           # stratified split + TF-IDF + Logistic Regression baseline (tested)
 │   ├── evaluate.py        # held-out evaluation + report (tested)
 │   ├── errors.py          # error analysis + Naive Bayes comparison + report (tested)
-│   ├── predict.py         # input validation; model to follow
+│   ├── predict.py         # prediction with confidence score + low-confidence warning (tested)
 │   └── app.py             # skeleton; demo interface to follow
 ├── models/                # saved pipeline — binaries are git-ignored
 ├── reports/               # exploration report (eda.md) + balance charts
 │                          # + evaluation (evaluation.md) + error analysis
 │                          # (error_analysis.md) + confusion charts
+│                          # + sample predictions (prediction_examples.md)
 ├── tests/                 # pytest tests
 ├── requirements.txt
 ├── .gitignore
@@ -107,6 +116,11 @@ PYTHONPATH=src python -m ticketsense.evaluate
 # second baseline, and write reports/error_analysis.md plus the
 # confusion-matrix charts in reports/ (charts are local only)
 PYTHONPATH=src python -m ticketsense.errors
+
+# Predict one ticket: category and priority with a confidence
+# score for each, and a low-confidence warning when either score
+# is below its threshold (category 0.30, priority 0.45)
+PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please refund me"
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q
@@ -155,3 +169,16 @@ exact source, licence and permitted use in `data/README.md` first.
 - Predictions, when they exist, will be suggestions, not
   automatic decisions. Low-confidence cases must be flagged
   for a human.
+- **Confidence scores are compressed and must be read as a
+  ranking, not as a probability of being right.** On the
+  held-out test tickets the clearest predictions still score
+  under 0.5 (category confidence only ranges 0.22–0.47), so
+  "0.45" does not mean "45% likely right" — it means surer
+  than a ticket scoring 0.27. The low-confidence thresholds
+  (category 0.30, priority 0.45) were measured from that test
+  set: predictions above them were right far more often than
+  those below them. The warning fired on 4 of 5 sample
+  predictions in `reports/prediction_examples.md`, every time
+  on the priority half — which matches the weak priority
+  accuracy above. The scores need recalibration on a larger
+  dataset before they can be quoted as probabilities.
