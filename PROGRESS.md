@@ -406,3 +406,72 @@
 - Demo interface (`app.py`): Streamlit or FastAPI, showing the
   prediction with its confidence scores and the low-confidence
   warning; then sample inputs and malformed-input tests.
+
+## Day 7 — 2026-11-17 (TicketSense)
+
+### What was done
+- Demo interface in `src/ticketsense/app.py` (was an honest
+  skeleton): a small FastAPI app, chosen over Streamlit so it
+  can be tested with the FastAPI test client. It reuses
+  `predict_ticket()` from `predict.py` — no prediction logic
+  is duplicated. `GET /` serves a simple page with a form: one
+  text box for the ticket text and a Predict button (plain
+  inline HTML and styling, no template files). `POST /predict`
+  runs the prediction and shows a result page with the
+  predicted category and its confidence score, the predicted
+  priority and its confidence score, the low-confidence
+  warning in plain words when flagged, and the submitted text
+  back (HTML-escaped). `GET /api/predict?text=...` returns the
+  same prediction as JSON (labels, confidences,
+  `low_confidence`, `warning`).
+- Errors handled gracefully, no tracebacks: empty or blank
+  text shows a clear "Ticket text must not be empty" message
+  on the page (and a 400 JSON error for the API); missing model
+  files show a clear "Train the baseline first" message (and a
+  503 JSON error for the API). Runnable:
+  `PYTHONPATH=src python -m ticketsense.app` starts the server
+  with uvicorn on http://127.0.0.1:8000.
+- New dependencies, pinned in `requirements.txt` and installed
+  in the project `.venv` (Python 3.12.3): fastapi 0.163.1,
+  uvicorn 0.54.0, httpx 0.28.1 (needed by the test client) and
+  python-multipart 0.0.34 (needed for form posts). `pip check`
+  is clean.
+- README updated (no day numbers): status, stack, project
+  layout and run commands now cover the demo page, the JSON
+  endpoint and the error behaviour.
+
+### Tests / checks run (Day 7, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **78 passed** (65 existing + 13 new in
+  `tests/test_app.py`: home page loads with the form, form
+  prediction shows the right category/priority labels and
+  confidence numbers for a clear ticket, the low-confidence
+  warning appears for the vague ticket and not for a clear
+  thank-you ticket, empty text gives a clear error instead of
+  a crash, missing model files give a clear "train first"
+  error on both the page and the API, the JSON endpoint
+  returns labels/confidences/warning fields with the right
+  error codes for empty text, and submitted text is escaped
+  on the result page)
+- Live server check: `PYTHONPATH=src python -m ticketsense.app`
+  started uvicorn on port 8000; `GET /` returned 200 with the
+  form, `GET /api/predict?text=...` returned billing 0.44 /
+  medium 0.42 with the priority warning for a refund ticket,
+  empty text returned 400, and a form post for the vague ticket
+  showed the warning on both halves
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The DeprecationWarnings in the test run (scipy L-BFGS-B
+  options, matplotlib text conversion, starlette TestClient
+  httpx note) come from the pinned library versions and already
+  appear in earlier test runs — they are not caused by the new
+  code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 7.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 8 (TicketSense)
+- Sample inputs and malformed-input tests for the demo; then
+  packaging and final polish toward the release.

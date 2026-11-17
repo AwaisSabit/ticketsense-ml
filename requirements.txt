@@ -10,3 +10,7 @@ fonttools==4.68.0
 kiwisolver==1.5.1
 pillow==13.0.0
 pyparsing==3.3.3
+fastapi==0.163.1
+uvicorn==0.54.0
+httpx==0.28.1
+python-multipart==0.0.34

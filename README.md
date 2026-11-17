@@ -23,7 +23,9 @@ when either score is below its threshold (category 0.30,
 priority 0.45 — measured on the held-out test set, because
 this model's probabilities are compressed and a single 0.6
 threshold would flag every prediction). Sample predictions
-with their confidences are in `reports/prediction_examples.md`.
+with their confidences are in `reports/prediction_examples.md`. A small
+demo web page serves the same predictions with their confidence
+scores and the low-confidence warning — see the demo section below.
 
 ## Problem
 
@@ -58,8 +60,8 @@ are rejected, not silently accepted.
 ## Stack
 
 Python 3.12, pandas, NumPy, scikit-learn (baseline: TF-IDF +
-Logistic Regression), joblib, pytest. Demo interface:
-Streamlit *or* FastAPI — to be chosen after a model exists.
+Logistic Regression), joblib, pytest. Demo interface: FastAPI
+with uvicorn, tested with the FastAPI test client.
 
 ## Project layout
 
@@ -77,7 +79,7 @@ ticketsense-ml/
 │   ├── evaluate.py        # held-out evaluation + report (tested)
 │   ├── errors.py          # error analysis + Naive Bayes comparison + report (tested)
 │   ├── predict.py         # prediction with confidence score + low-confidence warning (tested)
-│   └── app.py             # skeleton; demo interface to follow
+│   └── app.py             # FastAPI demo web page + JSON endpoint (tested)
 ├── models/                # saved pipeline — binaries are git-ignored
 ├── reports/               # exploration report (eda.md) + balance charts
 │                          # + evaluation (evaluation.md) + error analysis
@@ -121,6 +123,19 @@ PYTHONPATH=src python -m ticketsense.errors
 # score for each, and a low-confidence warning when either score
 # is below its threshold (category 0.30, priority 0.45)
 PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please refund me"
+
+# Start the demo web page (FastAPI + uvicorn) on
+# http://127.0.0.1:8000 — a form with one text box and a Predict
+# button, showing the category and priority with their confidence
+# scores, the low-confidence warning when it applies, and the
+# submitted text back. Empty text shows a clear error on the page
+# instead of a crash, and missing model files show a message
+# telling you to train the baseline first.
+PYTHONPATH=src python -m ticketsense.app
+
+# The same prediction as JSON, without the page:
+# curl "http://127.0.0.1:8000/api/predict?text=my%20card%20was%20charged%20twice"
+# Empty text answers 400 and missing model files answer 503.
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q
