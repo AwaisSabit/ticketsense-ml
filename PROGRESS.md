@@ -475,3 +475,75 @@
 ### Next steps — Day 8 (TicketSense)
 - Sample inputs and malformed-input tests for the demo; then
   packaging and final polish toward the release.
+
+## Day 8 — 2026-11-18 (TicketSense)
+
+### What was done
+- Model-loading check first, before any new code: `app.py`
+  calls `predict_ticket()` from `predict.py`, which loads the
+  saved pipelines `models/category_pipeline.joblib` and
+  `models/priority_pipeline.joblib` with joblib on every call.
+  Verified live that both files load as fitted scikit-learn
+  pipelines (category classes: account, billing, delivery,
+  other, technical) and that the demo predicts with them — a
+  refund ticket came back billing 0.40 / medium 0.38. Nothing
+  was a stub and no fix was needed; no model was retrained and
+  no model file was changed.
+- Sample inputs in a new module `src/ticketsense/samples.py`:
+  six realistic tickets — one per category (billing charged
+  twice, technical app crash, account login/reset email,
+  delivery parcel stuck in transit, other thank-you note)
+  plus a vague "hello I need some help please" that should
+  warn. Each sample carries its label, text, the category the
+  saved baseline predicts for it (checked live — all five
+  category samples predict their own category), and whether
+  the low-confidence warning should fire. The vague sample
+  predicts `other` at 0.27 confidence, below the 0.30
+  category threshold, so it warns on both halves.
+- Demo wiring: the home page now shows the six samples as
+  clickable buttons above the form; clicking one fills the
+  text box with that ticket (small inline JavaScript, text
+  quoted with `json.dumps` so it is safe, labels HTML-escaped
+  like everything else on the page). The JSON endpoint is
+  unchanged and is documented in the page footer as before.
+- Malformed-input tests in a new file
+  `tests/test_demo_inputs.py` (23 tests): empty, whitespace-only
+  and missing text on the form POST (400 with "must not be
+  empty" and the form still shown) and on the API (400 JSON
+  error, including no `text` query param at all); an 11,000-
+  character ticket through both the form and the API (200 with
+  a valid prediction, answered in well under 10 seconds);
+  punctuation-only text ("!!! ??? ...") answered normally
+  instead of crashing on an all-zero TF-IDF vector; non-string
+  input to `predict_ticket` (`None`, a number, a float, a list,
+  a dict) raising a clear `ValueError` ("must be a string");
+  and every sample ticket predicting successfully through the
+  API with the expected category and warning behaviour. No
+  test ever sees a 500 or a traceback.
+- README updated (no day numbers): project layout and the demo
+  run commands now cover the samples module and the clickable
+  sample buttons.
+
+### Tests / checks run (Day 8, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **101 passed** (78 existing + 23 new in
+  `tests/test_demo_inputs.py`)
+- Live model check: `load_models()` loads both saved pipelines;
+  `predict_ticket` on a refund ticket returns billing 0.40 /
+  medium 0.38 with the priority warning, as on Day 6/7
+- Home page smoke check via the test client: 200, all six
+  sample labels present, buttons fill the form text box
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The StarletteDeprecationWarning in the test run (httpx with
+  the test client) comes from the pinned library versions and
+  already appears in the Day 7 run — it is not caused by the
+  new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 2 real commits on Day 8.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 9 (TicketSense)
+- Packaging and final polish toward the release.

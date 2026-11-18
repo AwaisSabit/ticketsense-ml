@@ -79,6 +79,7 @@ ticketsense-ml/
 │   ├── evaluate.py        # held-out evaluation + report (tested)
 │   ├── errors.py          # error analysis + Naive Bayes comparison + report (tested)
 │   ├── predict.py         # prediction with confidence score + low-confidence warning (tested)
+│   ├── samples.py         # sample ticket texts for the demo page (one per category + a vague one)
 │   └── app.py             # FastAPI demo web page + JSON endpoint (tested)
 ├── models/                # saved pipeline — binaries are git-ignored
 ├── reports/               # exploration report (eda.md) + balance charts
@@ -128,7 +129,10 @@ PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please 
 # http://127.0.0.1:8000 — a form with one text box and a Predict
 # button, showing the category and priority with their confidence
 # scores, the low-confidence warning when it applies, and the
-# submitted text back. Empty text shows a clear error on the page
+# submitted text back. Six sample tickets (one per category plus
+# a vague one, from `src/ticketsense/samples.py`) are shown as
+# clickable buttons above the form so the demo can be tried
+# without typing. Empty text shows a clear error on the page
 # instead of a crash, and missing model files show a message
 # telling you to train the baseline first.
 PYTHONPATH=src python -m ticketsense.app

@@ -10,7 +10,8 @@ Endpoints
 ---------
 ``GET /``
     A page with a form: one text box for the ticket text and a
-    Predict button.
+    Predict button, plus clickable sample tickets (from
+    ``ticketsense.samples``) that fill the text box.
 ``POST /predict``
     The form post: predicts the category and priority for the
     submitted text and shows a result page with both labels,
@@ -36,12 +37,14 @@ then open http://127.0.0.1:8000 in a browser.
 from __future__ import annotations
 
 import html
+import json
 
 import uvicorn
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from .predict import predict_ticket
+from .samples import SAMPLE_TICKETS
 from .train import DEFAULT_CATEGORY_MODEL, DEFAULT_PRIORITY_MODEL
 
 # Model file locations, kept as module-level names so tests can
@@ -105,6 +108,24 @@ def _page(body: str) -> str:
     return _PAGE_HEAD + body + _PAGE_TAIL
 
 
+def _samples_html() -> str:
+    """Clickable sample tickets that fill the form's text box."""
+    buttons = []
+    for sample in SAMPLE_TICKETS:
+        # json.dumps gives a safely quoted JavaScript string; the
+        # label is HTML-escaped like everything else on the page.
+        buttons.append(
+            "<button type=\"button\" onclick=\"document.getElementById"
+            f"('text').value={json.dumps(sample['text'])};\">"
+            f"{html.escape(sample['label'])}</button>"
+        )
+    return (
+        "<p>Try a sample ticket (click one to fill the box):</p>\n"
+        + "\n".join(buttons)
+        + "\n"
+    )
+
+
 def _form_page(text: str = "", message: str = "", message_class: str = "") -> str:
     """The form page, optionally with an error message above it."""
     message_html = ""
@@ -112,7 +133,9 @@ def _form_page(text: str = "", message: str = "", message_class: str = "") -> st
         message_html = (
             f'<p class="{message_class}">{html.escape(message)}</p>\n'
         )
-    return _page(message_html + _FORM.format(text=html.escape(text)))
+    return _page(
+        message_html + _samples_html() + _FORM.format(text=html.escape(text))
+    )
 
 
 def _result_page(result: dict) -> str:
