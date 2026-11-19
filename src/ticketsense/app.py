@@ -15,11 +15,16 @@ Endpoints
 ``POST /predict``
     The form post: predicts the category and priority for the
     submitted text and shows a result page with both labels,
-    both confidence scores, the low-confidence warning when it
-    applies, and the submitted text back.
+    both confidence scores as percentages with a visual bar and
+    the threshold each score is judged against in plain words,
+    the low-confidence warning when it applies, the submitted
+    text back, a "Try another ticket" link back to the form, and
+    the six sample tickets as clickable buttons.
 ``GET /api/predict?text=...``
     The same prediction as JSON (labels, confidences,
-    ``low_confidence`` and ``warning``).
+    ``low_confidence`` and ``warning``), plus the threshold each
+    confidence is judged against and a plain-English confidence
+    note for each task.
 
 Errors are shown on the page instead of a traceback: empty or
 blank text shows a clear error message, and missing model files
@@ -43,7 +48,11 @@ import uvicorn
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from .predict import predict_ticket
+from .predict import (
+    LOW_CONFIDENCE_CATEGORY,
+    LOW_CONFIDENCE_PRIORITY,
+    predict_ticket,
+)
 from .samples import SAMPLE_TICKETS
 from .train import DEFAULT_CATEGORY_MODEL, DEFAULT_PRIORITY_MODEL
 
@@ -72,6 +81,8 @@ h1 { font-size: 1.5em; }
 textarea { width: 100%; min-height: 6em; font: inherit; }
 button { font: inherit; padding: 0.4em 1.2em; margin-top: 0.5em; }
 .result { border: 1px solid #999; padding: 1em; margin-top: 1em; }
+.bar { background: #e0e0e0; height: 0.9em; margin: 0.2em 0; }
+.bar span { display: block; height: 100%; background: #2a7d4f; }
 .warning { color: #8a4b00; font-weight: bold; }
 .error { color: #a00; font-weight: bold; }
 blockquote { background: #f4f4f4; padding: 0.5em 1em; }
@@ -138,6 +149,51 @@ def _form_page(text: str = "", message: str = "", message_class: str = "") -> st
     )
 
 
+def confidence_note(task: str, confidence: float, threshold: float) -> str:
+    """Plain-English note comparing one confidence with its threshold.
+
+    Args:
+        task: "Category" or "Priority" — the first word of the note.
+        confidence: The confidence score, 0 to 1.
+        threshold: The bar this task's confidence is judged against.
+
+    Returns:
+        A sentence like "Category confidence 44% — above the 30%
+        bar, so this looks fairly sure", or the below-the-bar
+        version when the score is under the threshold.
+    """
+    percent = round(confidence * 100)
+    bar = f"{round(threshold * 100)}%"
+    if confidence >= threshold:
+        return (
+            f"{task} confidence {percent}% — above the {bar} bar, "
+            "so this looks fairly sure"
+        )
+    return (
+        f"{task} confidence {percent}% — below the {bar} bar, "
+        "so treat this with care"
+    )
+
+
+def _confidence_html(
+    task: str, label: str, confidence: float, threshold: float
+) -> str:
+    """One prediction as label, percentage, bar and threshold note.
+
+    The raw two-decimal score is kept next to the percentage so
+    the numbers stay comparable with the command-line output.
+    The bar is plain HTML/CSS (a filled span inside a grey
+    track) — no new dependency.
+    """
+    percent = round(confidence * 100)
+    return (
+        f"<p>{task}: <strong>{html.escape(label)}</strong> "
+        f"(confidence {confidence:.2f}, {percent}%)</p>\n"
+        f'<div class="bar"><span style="width: {percent}%"></span></div>\n'
+        f"<p>{html.escape(confidence_note(task, confidence, threshold))}</p>\n"
+    )
+
+
 def _result_page(result: dict) -> str:
     """The form page plus the prediction result for one ticket."""
     warning_html = ""
@@ -145,13 +201,24 @@ def _result_page(result: dict) -> str:
         warning_html = (
             f'<p class="warning">Warning: {html.escape(result["warning"])}</p>\n'
         )
-    body = _FORM.format(text=html.escape(result["text"])) + (
-        '<div class="result">\n'
+    body = (
+        '<p><a href="/">Try another ticket</a></p>\n'
+        + _samples_html()
+        + _FORM.format(text=html.escape(result["text"]))
+        + '<div class="result">\n'
         f"<p>Ticket: <blockquote>{html.escape(result['text'])}</blockquote></p>\n"
-        f"<p>Category: <strong>{html.escape(result['category'])}</strong> "
-        f"(confidence {result['category_confidence']:.2f})</p>\n"
-        f"<p>Priority: <strong>{html.escape(result['priority'])}</strong> "
-        f"(confidence {result['priority_confidence']:.2f})</p>\n"
+        + _confidence_html(
+            "Category",
+            result["category"],
+            result["category_confidence"],
+            LOW_CONFIDENCE_CATEGORY,
+        )
+        + _confidence_html(
+            "Priority",
+            result["priority"],
+            result["priority_confidence"],
+            LOW_CONFIDENCE_PRIORITY,
+        )
         + warning_html
         + "</div>\n"
     )
@@ -205,6 +272,18 @@ def predict_api(text: str = "") -> JSONResponse:
         )
     except FileNotFoundError:
         return JSONResponse({"error": MISSING_MODEL_MESSAGE}, status_code=503)
+    # Threshold context, same as the result page shows: the bar
+    # each confidence is judged against, and the plain-English
+    # note that says whether it cleared that bar. The original
+    # fields are unchanged.
+    result["category_threshold"] = LOW_CONFIDENCE_CATEGORY
+    result["priority_threshold"] = LOW_CONFIDENCE_PRIORITY
+    result["category_confidence_note"] = confidence_note(
+        "Category", result["category_confidence"], LOW_CONFIDENCE_CATEGORY
+    )
+    result["priority_confidence_note"] = confidence_note(
+        "Priority", result["priority_confidence"], LOW_CONFIDENCE_PRIORITY
+    )
     return JSONResponse(result)
 
 

@@ -24,8 +24,12 @@ priority 0.45 — measured on the held-out test set, because
 this model's probabilities are compressed and a single 0.6
 threshold would flag every prediction). Sample predictions
 with their confidences are in `reports/prediction_examples.md`. A small
-demo web page serves the same predictions with their confidence
-scores and the low-confidence warning — see the demo section below.
+demo web page serves the same predictions — each confidence as
+a percentage with a visual bar and the threshold it is judged
+against in plain words, plus the low-confidence warning — and
+the result page offers a "Try another ticket" link and the six
+sample tickets to try another in one click; see the demo section
+below.
 
 ## Problem
 
@@ -128,18 +132,25 @@ PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please 
 # Start the demo web page (FastAPI + uvicorn) on
 # http://127.0.0.1:8000 — a form with one text box and a Predict
 # button, showing the category and priority with their confidence
-# scores, the low-confidence warning when it applies, and the
-# submitted text back. Six sample tickets (one per category plus
-# a vague one, from `src/ticketsense/samples.py`) are shown as
-# clickable buttons above the form so the demo can be tried
-# without typing. Empty text shows a clear error on the page
-# instead of a crash, and missing model files show a message
-# telling you to train the baseline first.
+# scores as percentages with a visual bar and the threshold each
+# score is judged against in plain words, the low-confidence
+# warning when it applies, and the submitted text back. The
+# result page also offers a "Try another ticket" link back to
+# the form and the six sample tickets as clickable buttons.
+# Six sample tickets (one per category plus a vague one, from
+# `src/ticketsense/samples.py`) are shown as clickable buttons
+# above the form so the demo can be tried without typing.
+# Empty text shows a clear error on the page instead of a crash,
+# and missing model files show a message telling you to train
+# the baseline first.
 PYTHONPATH=src python -m ticketsense.app
 
 # The same prediction as JSON, without the page:
 # curl "http://127.0.0.1:8000/api/predict?text=my%20card%20was%20charged%20twice"
-# Empty text answers 400 and missing model files answer 503.
+# The JSON also carries the thresholds each confidence is judged
+# against (category 0.30, priority 0.45) and a plain-English
+# confidence note for each task. Empty text answers 400 and
+# missing model files answer 503.
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q

@@ -547,3 +547,72 @@
 
 ### Next steps — Day 9 (TicketSense)
 - Packaging and final polish toward the release.
+
+## Day 9 — 2026-11-19 (TicketSense)
+
+### What was done
+- Confidence display on the demo result page (`src/ticketsense/app.py`):
+  each confidence is now shown as a percentage as well as the raw
+  two-decimal score, with a simple visual bar (plain HTML/CSS —
+  a filled span inside a grey track, no new dependency) and the
+  threshold it is judged against in plain words. A new helper,
+  `confidence_note()`, writes the sentence: above the bar it
+  reads "Category confidence 44% — above the 30% bar, so this
+  looks fairly sure"; below it reads "Priority confidence 38% —
+  below the 45% bar, so treat this with care". The thresholds
+  themselves are unchanged (category 0.30, priority 0.45) and no
+  model file was retrained or touched. The low-confidence
+  warning, the predicted labels, the raw scores and the submitted
+  text are all still on the page exactly as before.
+- Demo flow: the result page now offers a clear way onward — a
+  "Try another ticket" link back to the form, and the six sample
+  tickets as clickable buttons on the result page too, so a
+  visitor can try another sample in one click. The home page
+  keeps its existing form and samples, unchanged.
+- JSON endpoint: `GET /api/predict` now carries the same
+  threshold context — `category_threshold` 0.30,
+  `priority_threshold` 0.45, and a plain-English
+  `category_confidence_note` / `priority_confidence_note` for
+  each task. All seven original fields keep their names and
+  values exactly; only the four new fields are added. The one
+  existing test that asserted the exact JSON key set was updated
+  to list the new fields.
+- README updated (no day numbers): the demo section now covers
+  the confidence bars and threshold wording, the try-another
+  link and samples on the result page, and the threshold fields
+  in the JSON response.
+
+### Tests / checks run (Day 9, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **109 passed** (101 existing + 8 new in
+  `tests/test_demo_display.py`: result page shows percentages
+  and "above the 30%/45% bar" wording for a clear thank-you
+  ticket, "below the bar" wording for the vague ticket, two
+  visual bars filled to the right percentages, the warning still
+  appears when flagged, the result page has the try-another link
+  and all six sample buttons with the form still there, the home
+  page is unchanged, and the JSON response carries the threshold
+  fields and confidence notes for both a clear and a vague
+  ticket while keeping the original fields exact)
+- Live server check: `PYTHONPATH=src python -m ticketsense.app`
+  started uvicorn on port 8000; `GET /` returned 200, a form post
+  for the thank-you ticket showed both "above the bar" notes and
+  two bars, a form post for the vague ticket showed the
+  "below the bar" note and the warning on both halves, and
+  `GET /api/predict?text=...` for the vague ticket returned
+  category 0.27 / priority 0.37 with both thresholds and both
+  "treat this with care" notes. The server was stopped after the
+  check.
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 9.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 10 (TicketSense)
+- Packaging and final polish toward the release.

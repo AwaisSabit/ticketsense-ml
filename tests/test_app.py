@@ -93,6 +93,13 @@ def test_json_endpoint_returns_labels_confidences_and_warning(client):
         "priority_confidence",
         "low_confidence",
         "warning",
+        # Threshold context added for the demo display work:
+        # the bar each confidence is judged against, and the
+        # plain-English note that says whether it cleared it.
+        "category_threshold",
+        "priority_threshold",
+        "category_confidence_note",
+        "priority_confidence_note",
     }
     assert result["category"] in {
         "billing",
