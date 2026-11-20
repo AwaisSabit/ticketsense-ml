@@ -29,7 +29,9 @@ a percentage with a visual bar and the threshold it is judged
 against in plain words, plus the low-confidence warning — and
 the result page offers a "Try another ticket" link and the six
 sample tickets to try another in one click; see the demo section
-below.
+below. The project is also packaged for install: `pip install -e .`
+installs it as `ticketsense` with the `ticketsense-train`,
+`ticketsense-predict` and `ticketsense-demo` commands.
 
 ## Problem
 
@@ -91,7 +93,8 @@ ticketsense-ml/
 │                          # (error_analysis.md) + confusion charts
 │                          # + sample predictions (prediction_examples.md)
 ├── tests/                 # pytest tests
-├── requirements.txt
+├── pyproject.toml         # package metadata, dependencies, console commands
+├── requirements.txt       # pinned dev install (same versions as pyproject.toml, plus pytest)
 ├── .gitignore
 ├── README.md
 └── PROGRESS.md
@@ -104,6 +107,14 @@ cd ticketsense-ml
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
+# Or install the package itself (editable, from this folder) —
+# this is the same runtime set, pinned to the same versions, and
+# it adds the ticketsense-train, ticketsense-predict and
+# ticketsense-demo commands. requirements.txt stays as the
+# pinned dev install path: it lists the same versions plus
+# pytest, which the package itself does not need at runtime.
+pip install -e .
 
 # Load the demo data and print class balance
 PYTHONPATH=src python -m ticketsense.data
@@ -151,6 +162,16 @@ PYTHONPATH=src python -m ticketsense.app
 # against (category 0.30, priority 0.45) and a plain-English
 # confidence note for each task. Empty text answers 400 and
 # missing model files answer 503.
+
+# After `pip install -e .`, the same three commands are
+# available without PYTHONPATH=src, from any folder:
+#   ticketsense-train
+#   ticketsense-predict "my card was charged twice, please refund me"
+#   ticketsense-demo
+# They call the same module entry points above — train, predict
+# and the demo app — so the behaviour is identical. The data
+# file and the saved models are still read from this project
+# folder, wherever the command is run from.
 
 # Run the tests
 PYTHONPATH=src python -m pytest -q

@@ -1,3 +1,9 @@
+# Pinned install for development: the same runtime versions are
+# declared in pyproject.toml (install with `pip install -e .`).
+# This file is the pinned dev install path — it adds pytest on top
+# of the runtime set. Keep the two lists in step; a test in
+# tests/test_packaging.py checks that every runtime version here
+# matches pyproject.toml.
 pandas==2.2.3
 numpy==1.26.4
 scikit-learn==1.5.2

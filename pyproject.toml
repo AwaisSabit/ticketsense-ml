@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ticketsense"
+dynamic = ["version"]
+description = "Classify support tickets and predict priority — a first-pass suggestion for a small support team."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Awais Sabit"},
+]
+dependencies = [
+    "pandas==2.2.3",
+    "numpy==1.26.4",
+    "scikit-learn==1.5.2",
+    "joblib==1.4.2",
+    "matplotlib==3.9.2",
+    "fastapi==0.163.1",
+    "uvicorn==0.54.0",
+    "httpx==0.28.1",
+    "python-multipart==0.0.34",
+]
+
+[project.scripts]
+ticketsense-train = "ticketsense.train:main"
+ticketsense-predict = "ticketsense.predict:main"
+ticketsense-demo = "ticketsense.app:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "ticketsense.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

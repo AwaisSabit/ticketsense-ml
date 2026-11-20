@@ -616,3 +616,81 @@
 
 ### Next steps — Day 10 (TicketSense)
 - Packaging and final polish toward the release.
+
+## Day 10 — 2026-11-20 (TicketSense)
+
+### What was done
+- Packaging in a new `pyproject.toml` (setuptools, `src` layout):
+  the package is `ticketsense`, version taken from
+  `ticketsense.__version__` (0.1.0, unchanged), Python >= 3.10,
+  with the runtime dependencies pinned to the same versions
+  already in `requirements.txt` (pandas 2.2.3, numpy 1.26.4,
+  scikit-learn 1.5.2, joblib 1.4.2, matplotlib 3.9.2,
+  fastapi 0.163.1, uvicorn 0.54.0, httpx 0.28.1,
+  python-multipart 0.0.34). pytest stays out of the runtime
+  list — it is a dev-only dependency.
+- Three console scripts, each calling the existing module entry
+  point (no logic duplicated): `ticketsense-train` calls
+  `ticketsense.train:main`, `ticketsense-predict` calls
+  `ticketsense.predict:main`, and `ticketsense-demo` calls
+  `ticketsense.app:main`. All data and model paths are already
+  anchored to the project folder, so the commands work from any
+  directory once installed.
+- `requirements.txt` stays as the pinned dev install path: it
+  lists the same runtime versions plus pytest. A short comment
+  at the top of the file records the relationship, and a test
+  checks the two lists never drift apart. The README explains
+  both install paths and documents the console commands next to
+  the module commands.
+- No model file was retrained for this work on purpose — the
+  training run below was the verification of the new
+  `ticketsense-train` command, using the same data and seed, so
+  the saved pipelines are the same baseline. Model binaries
+  stay git-ignored and local-only, as before.
+
+### Tests / checks run (Day 10, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **116 passed** (109 existing + 7 new in
+  `tests/test_packaging.py`: pyproject names the package and
+  takes its version from `ticketsense.__version__`, declares
+  the `src` layout and Python >= 3.10, declares the three
+  console scripts, all three entry-point functions are
+  callable, every runtime version in pyproject matches the pin
+  in `requirements.txt`, and — only when the package is
+  installed — the installed version matches the package and
+  the three scripts are registered)
+- Fresh-venv verification (a brand-new venv, not the project
+  `.venv`): `pip install -e .` succeeded, `pip check` is
+  clean, `import ticketsense` reports version 0.1.0.
+  `ticketsense-train` trained on the demo data (160 train /
+  40 test, same split as before) and saved both pipelines;
+  `ticketsense-predict "my card was charged twice, please
+  refund me"` returned billing 0.44 / medium 0.42 with the
+  priority warning; the demo home page served 200 with the
+  form and the JSON endpoint returned `other` / `low` for a
+  thank-you ticket, both through the FastAPI test client.
+  The full suite in that fresh venv (pytest installed there
+  just to run it) passed: **116 passed**, including the two
+  install-dependent tests that skip in the project venv.
+  The fresh venv was deleted after the check. One hiccup:
+  the first fresh venv was built under `/tmp`, which is a
+  512 MB tmpfs and ran out of space mid-install; the check
+  was redone with the venv under the home directory, where
+  there is room.
+- `PYTHONPATH=src python -m ticketsense.predict "..."` from
+  the project still works exactly as before (billing 0.44 /
+  medium 0.42, priority warning).
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 10.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 11 (TicketSense)
+- Final polish toward the release: review the README and the
+  reports once more, and confirm the v1.0.0 release checklist.
