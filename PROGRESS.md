@@ -694,3 +694,83 @@
 ### Next steps — Day 11 (TicketSense)
 - Final polish toward the release: review the README and the
   reports once more, and confirm the v1.0.0 release checklist.
+
+## Day 11 — 2026-11-21 (TicketSense)
+
+### What was done
+- Preprocessing and prediction tests in two new files, 32 new
+  tests, with no duplication of existing coverage:
+  - `tests/test_preprocessing.py` (13 tests): the `clean_text`
+    rules — tabs, newlines and mixed whitespace collapse,
+    punctuation and numbers are kept, non-ASCII text (Roman
+    Urdu, accented names) is kept, cleaning is idempotent, every
+    non-string form (None, int, float, list, dict, bytes) and
+    every blank form is rejected, and punctuation-only text
+    passes cleaning (it is the model's problem, not the
+    cleaner's). The vectoriser: its preprocessor is `clean_text`,
+    its vocabulary is all lowercase, word pairs such as
+    "charged twice" are present, rare words and stopwords are
+    kept (min_df=1, no stopword list), punctuation is tokenised
+    away, and `predict_label` hands the pipeline the cleaned
+    text, not the raw input.
+  - `tests/test_prediction_edges.py` (19 tests): the threshold
+    boundaries, driven by a fake pipeline with fixed
+    probabilities so a test can sit exactly on a threshold —
+    confidence exactly at 0.30 (category) and 0.45 (priority)
+    is *not* low, just below warns on that half only, both
+    below names both in one warning, with the exact warning
+    wording pinned; the threshold constants themselves pinned;
+    confidence rounded to 4 decimals and taken from the top
+    probability; `predict_label` rejects empty/non-string
+    directly; `predict_ticket` rejects every non-string form;
+    messy input returns cleaned text; the missing-model error
+    names both files when both are absent and only the missing
+    one when just the priority file is absent; passing one
+    loaded pipeline loads the other half from disk; the
+    `predict_text` alias returns the same result;
+    `format_prediction` shows two-decimal confidences;
+    punctuation-only and ~5,000-character tickets still
+    predict; the CLI `--category-threshold` /
+    `--priority-threshold` flags control the warning; and the
+    CLI with a missing priority model exits 1 with the
+    train-first error.
+- Clean-environment re-run: a fresh venv built under
+  `~/workspace/30-day-plan/.day11-venv-ticketsense` (home
+  directory, not /tmp — /tmp ran out of space on Day 10),
+  `pip install -e .` plus pytest 8.3.3, `pip check` clean,
+  `ticketsense` 0.1.0 importable. The full suite in it passed:
+  **148 passed**. Trained from scratch and evaluated in that
+  clean env: **category accuracy 0.8500, priority accuracy
+  0.5250** — exactly the numbers in the committed
+  `reports/evaluation.md`. The regenerated report and both
+  saved pipelines are byte-identical to the ones already in
+  the repo (sha256 check), so there was no discrepancy and no
+  report or code fix was needed. The `ticketsense-predict`
+  console command in the clean env returned billing 0.44 /
+  medium 0.42 with the priority warning, as before. The
+  scratch venv was deleted afterwards.
+
+### Tests / checks run (Day 11, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **148 passed** (116 before + 32 new: 13 in
+  `tests/test_preprocessing.py`, 19 in
+  `tests/test_prediction_edges.py`)
+- Clean venv: `pip check` clean; `pytest -q` → **148 passed**;
+  `ticketsense-train` → 160 train / 40 test; `ticketsense-evaluate`
+  → category accuracy 0.8500, priority accuracy 0.5250, matching
+  the committed report exactly (sha256 of the regenerated
+  report and both model files unchanged)
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 2 real commits on Day 11.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 12 (TicketSense)
+- README/docs polish, then a full-test bug-fix pass (with
+  ClientFlow and RepoDoctor, per the compressed schedule).
