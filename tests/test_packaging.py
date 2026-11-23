@@ -50,7 +50,7 @@ def test_pyproject_names_the_package_and_takes_its_version() -> None:
     assert data["tool"]["setuptools"]["dynamic"]["version"] == {
         "attr": "ticketsense.__version__"
     }
-    assert ticketsense.__version__ == "0.1.0"
+    assert ticketsense.__version__ == "1.0.0"
 
 
 def test_pyproject_declares_the_src_layout() -> None:

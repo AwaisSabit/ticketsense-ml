@@ -963,5 +963,218 @@
   committed locally but must stay out of the snapshot push.
 
 ### Next steps — Day 14 (TicketSense)
-- Packaging / release polish toward the v1.0.0 release on
-  Day 15, per the compressed schedule.
+- Final security/config/leakage reviews, production-like run,
+  clean-env smoke tests, release candidates (with ClientFlow
+  and RepoDoctor, per the compressed schedule).
+
+## Day 14 — 2026-11-24 (TicketSense)
+
+Done on the evening of Mon 23 Nov, a day early, at Sir Awais's
+request to finish everything through Day 15 tonight.
+
+### What was done
+- Final security, configuration and leakage review:
+  - Scanned every text file in the repo for secret-shaped
+    text (API key / token / password assignments, cloud keys,
+    private key blocks): **0 hits**. The only "password" words
+    in the code are a label meaning and a sample ticket text.
+  - `data/demo_tickets.csv` holds no email addresses and no
+    phone-number-like sequences — the set stays 200
+    hand-written synthetic tickets, with no real customer data
+    anywhere in the project.
+  - The saved models (`models/*.joblib`) and generated charts
+    stay local only and git-ignored; no `.env` file exists or
+    is tracked. No code makes network calls at runtime — the
+    demo server listens on `127.0.0.1` only.
+  - Dependencies are pinned to exact versions in both
+    `requirements.txt` and `pyproject.toml`, checked against
+    each other by a test.
+  - Findings written up in a new `SECURITY.md`, with the rules
+    for later changes and what to do if a secret is ever
+    committed by mistake. Five new tests in
+    `tests/test_release_hygiene.py` enforce the review on
+    every run: no secret-shaped text, no model binary or env
+    file tracked, no generated chart tracked except the two
+    balance charts, no contact details in the demo data, and
+    all runtime dependencies pinned.
+- Production-like run (recorded in `reports/production_run.md`):
+  the real commands from a normal shell, no test harness —
+  `train` (160 train / 40 test, 6.2 seconds),
+  `evaluate` (category 0.8500, priority 0.5250, exactly the
+  committed numbers), `predict` on three tickets (billing
+  refund, app crash, thank-you note — all sensible), and the
+  demo server checked with curl (home page 200, JSON API
+  billing 0.38 / medium 0.40 with the warning and thresholds,
+  empty text 400, form post 200). Retraining reproduces the
+  saved pipelines byte-for-byte (sha256 unchanged), so the
+  release models are exactly the evaluated baseline.
+- Clean-environment smoke test: a fresh venv built under
+  `~/workspace/30-day-plan/.day14-venv-ticketsense` (home
+  directory, not /tmp), `pip install -e .` plus pytest 8.3.3,
+  `pip check` clean, `ticketsense` 0.1.0 importable.
+  `ticketsense-train` trained (160 / 40) and
+  `ticketsense-predict` answered billing 0.44 / medium 0.42
+  with the priority warning, both from the installed console
+  commands. The full suite in that venv passed: **167
+  passed**, including the two install-dependent packaging
+  tests that skip in the project venv. The scratch venv was
+  deleted afterwards; the retrained models are byte-identical
+  to the ones already in the repo.
+
+### Tests / checks run (Day 14, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **167 passed** (162 before + 5 new in
+  `tests/test_release_hygiene.py`)
+- Clean venv: `pip check` clean; `pytest -q` → **167
+  passed**; `ticketsense-train` → 160 train / 40 test;
+  `ticketsense-predict` → billing 0.44 / medium 0.42
+- Production-like run as listed above, including the live
+  demo server checks; the server was stopped after each
+  check.
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 14.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 15 (TicketSense)
+- Final end-to-end tests, release notes, publish v1.0.0, final
+  README/repo polish, verify clone-and-run.
+
+## Release notes — v1.0.0
+
+TicketSense 1.0.0 classifies support tickets and predicts
+priority — a first-pass suggestion for a small support team,
+not an automatic decision.
+
+### What is in this release
+- A tested data loader for the 200-ticket hand-written
+  synthetic demo set (40 per category), with validation for
+  missing values, duplicates and unknown labels.
+- An exploratory analysis (`reports/eda.md`) with balance
+  charts, text-length stats, top words per category and a
+  category-by-priority cross-tab.
+- A trained baseline — TF-IDF + Logistic Regression, one
+  pipeline for category and one for priority — with a held-out
+  evaluation (`reports/evaluation.md`), an error analysis with
+  confusion-matrix charts (`reports/error_analysis.md`), and a
+  Naive Bayes second baseline that scored lower on both tasks.
+- Prediction from the command line and through a small demo
+  web page, each prediction with a confidence score and a
+  plain-English low-confidence warning when either score is
+  below its measured threshold (category 0.30, priority 0.45).
+- Packaging: `pip install -e .` installs `ticketsense` with
+  the `ticketsense-train`, `ticketsense-predict` and
+  `ticketsense-demo` commands. A CI workflow
+  (`.github/workflows/ci.yml`) runs the tests on Python 3.11
+  and 3.12 — it lives in the repo but is local only, because
+  the snapshot push cannot carry workflow files.
+- Release hygiene: a security review (`SECURITY.md`) and tests
+  that keep secrets, model binaries and real customer data out
+  of the repo.
+
+### Headline numbers
+- 200 synthetic tickets; stratified split 160 train / 40 test,
+  seed 42.
+- Category accuracy 0.85 (macro F1 0.8449), priority accuracy
+  0.525 (macro F1 0.4535) on the 40 held-out tickets.
+- 172 tests passing, including end-to-end tests that run the
+  full flow — train, evaluate, predict, demo — through the
+  real command-line entry points.
+
+### Install and run
+- `pip install -r requirements.txt` for the pinned dev install,
+  or `pip install -e .` for the package with its console
+  commands. Then `ticketsense-train`,
+  `ticketsense-predict "ticket text"`, `ticketsense-demo`,
+  or `PYTHONPATH=src python -m pytest -q` for the tests.
+  The saved pipelines live in `models/` (local only) and are
+  rebuilt by `ticketsense-train`.
+
+### Known limitations
+- The baseline is trained on 200 synthetic rows only. The
+  numbers above show the pipeline works end to end; they are
+  not a performance claim. Priority is the weak half — it
+  found only 1 of 14 high-priority test tickets.
+- Priority labels are one person's judgement, not a support
+  team's agreed policy, and the demo set has no typos, no
+  Roman Urdu/Urdu, no order numbers and no real customer data.
+- Confidence scores are compressed (category 0.22–0.47 on the
+  test set) and must be read as a ranking, not as a
+  probability of being right. The thresholds were measured on
+  40 test tickets and need recalibration on a larger dataset.
+- A larger, properly licensed dataset must replace the demo
+  set before any real claim is made.
+
+## Day 15 — 2026-11-25 (TicketSense)
+
+Done on the evening of Mon 23 Nov, two days early, at Sir
+Awais's request to finish everything through Day 15 tonight.
+
+### What was done
+- Final end-to-end tests in `tests/test_end_to_end.py` (5
+  tests): the full user flow through the real command-line
+  entry points — `ticketsense.train` trains the baseline
+  (160 train / 40 test) and saves both pipelines,
+  `ticketsense.evaluate` scores it (category 0.8500,
+  priority 0.5250, exactly the committed numbers),
+  `ticketsense.predict` answers a refund ticket (billing
+  0.44 / medium 0.42 with the priority warning) and rejects
+  empty text with exit 1, and the demo serves the form, the
+  result page and the JSON endpoint, with the demo and the
+  command line agreeing on the same ticket. Training inside
+  the tests reproduces the saved pipelines byte-for-byte, so
+  the release models are untouched.
+- Version 1.0.0: `__version__` in `src/ticketsense/__init__.py`
+  is now `"1.0.0"` and the packaging keeps reading it
+  dynamically — the editable reinstall in the project venv
+  reports 1.0.0, and the packaging test that pins the version
+  was updated with it. One real catch on the way: the
+  install-dependent packaging test failed after the bump
+  because the old 0.1.0 egg-info was still on the path; the
+  reinstall fixed it, and the full suite passes again.
+- Release notes for v1.0.0 added to this file (the "Release
+  notes — v1.0.0" section above): what is in the release,
+  headline numbers, install and run commands, and the known
+  limitations, stated plainly.
+- Final README polish: the status line now says released as
+  v1.0.0 and points at the release notes, and the layout tree
+  lists `SECURITY.md` and the production-run record. No day
+  numbers in any README.
+- Clone-and-run verification: a fresh clone of the release
+  (no venv, no saved models) in a scratch folder, new venv,
+  `pip install -e .` plus pytest, `pip check` clean,
+  `ticketsense` 1.0.0 importable, `ticketsense-train`
+  trains from scratch, `ticketsense-predict` answers billing
+  0.44 / medium 0.42, and the full suite passes in the clone:
+  **172 passed**. The scratch clone was deleted afterwards.
+
+### Tests / checks run (Day 15, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **172 passed** (167 before + 5 new in
+  `tests/test_end_to_end.py`)
+- Clone-and-run as listed above: install, train, predict
+  and the full suite all pass from a clean clone.
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 15.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push. The `.github/workflows/ci.yml` file is
+  committed locally but must stay out of the snapshot push.
+
+### Next steps — after v1.0.0 (TicketSense)
+- The 15-day plan is finished for TicketSense. Any further
+  work needs a new plan from Sir Awais: the honest next step
+  would be a larger, properly licensed dataset with agreed
+  priority-labelling rules, then a retrained model and
+  recalibrated confidence thresholds.

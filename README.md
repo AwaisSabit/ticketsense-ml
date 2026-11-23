@@ -3,10 +3,11 @@
 Classify support tickets and predict priority — a first-pass
 suggestion for a small support team, not an automatic decision.
 
-**Status: work in progress.** Built as part of a 30-day portfolio
-challenge, Nov–Dec 2026. What exists now: a 200-ticket synthetic
-demo dataset with a tested loader, an exploratory analysis
-(`reports/eda.md`) with balance charts, and a trained baseline —
+**Status: released as v1.0.0.** Built as part of a 30-day portfolio
+challenge, Nov–Dec 2026. Release notes are in `PROGRESS.md`. What
+the release holds: a 200-ticket synthetic demo dataset with a
+tested loader, an exploratory analysis (`reports/eda.md`) with
+balance charts, and a trained baseline —
 TF-IDF + Logistic Regression, one pipeline for category and one
 for priority. On 40 held-out tickets it scores category accuracy
 0.85 and priority accuracy 0.525 (see `reports/evaluation.md`).
@@ -87,7 +88,9 @@ ticketsense-ml/
 │                          # + evaluation (evaluation.md) + error analysis
 │                          # (error_analysis.md) + confusion charts
 │                          # + sample predictions (prediction_examples.md)
+│                          # + production-like run (production_run.md)
 ├── tests/                 # pytest tests
+├── SECURITY.md            # security review + rules for later changes
 ├── .github/workflows/ci.yml  # CI (Python 3.11 + 3.12, pytest) — local only, not pushed
 ├── pyproject.toml         # package metadata, dependencies, console commands
 ├── requirements.txt       # pinned dev install (same versions as pyproject.toml, plus pytest)
