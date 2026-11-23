@@ -51,7 +51,9 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from .predict import (
     LOW_CONFIDENCE_CATEGORY,
     LOW_CONFIDENCE_PRIORITY,
+    confidence_note,
     predict_ticket,
+    summary_sentence,
 )
 from .samples import SAMPLE_TICKETS
 from .train import DEFAULT_CATEGORY_MODEL, DEFAULT_PRIORITY_MODEL
@@ -138,40 +140,19 @@ def _samples_html() -> str:
 
 
 def _form_page(text: str = "", message: str = "", message_class: str = "") -> str:
-    """The form page, optionally with an error message above it."""
+    """The form page, optionally with an error message above it.
+
+    The error message uses role="alert" so a screen reader
+    announces it as soon as the page loads.
+    """
     message_html = ""
     if message:
         message_html = (
-            f'<p class="{message_class}">{html.escape(message)}</p>\n'
+            f'<p class="{message_class}" role="alert">'
+            f"{html.escape(message)}</p>\n"
         )
     return _page(
         message_html + _samples_html() + _FORM.format(text=html.escape(text))
-    )
-
-
-def confidence_note(task: str, confidence: float, threshold: float) -> str:
-    """Plain-English note comparing one confidence with its threshold.
-
-    Args:
-        task: "Category" or "Priority" — the first word of the note.
-        confidence: The confidence score, 0 to 1.
-        threshold: The bar this task's confidence is judged against.
-
-    Returns:
-        A sentence like "Category confidence 44% — above the 30%
-        bar, so this looks fairly sure", or the below-the-bar
-        version when the score is under the threshold.
-    """
-    percent = round(confidence * 100)
-    bar = f"{round(threshold * 100)}%"
-    if confidence >= threshold:
-        return (
-            f"{task} confidence {percent}% — above the {bar} bar, "
-            "so this looks fairly sure"
-        )
-    return (
-        f"{task} confidence {percent}% — below the {bar} bar, "
-        "so treat this with care"
     )
 
 
@@ -183,29 +164,41 @@ def _confidence_html(
     The raw two-decimal score is kept next to the percentage so
     the numbers stay comparable with the command-line output.
     The bar is plain HTML/CSS (a filled span inside a grey
-    track) — no new dependency.
+    track) — no new dependency. The percentage is always shown
+    as visible text next to the bar, never colour-only, and the
+    bar itself carries the same percentage as an accessible
+    label so a screen reader announces it too.
     """
     percent = round(confidence * 100)
     return (
         f"<p>{task}: <strong>{html.escape(label)}</strong> "
         f"(confidence {confidence:.2f}, {percent}%)</p>\n"
-        f'<div class="bar"><span style="width: {percent}%"></span></div>\n'
+        f'<div class="bar" role="img" aria-label="{task} confidence '
+        f'{percent}%"><span style="width: {percent}%"></span></div>\n'
         f"<p>{html.escape(confidence_note(task, confidence, threshold))}</p>\n"
     )
 
 
 def _result_page(result: dict) -> str:
-    """The form page plus the prediction result for one ticket."""
+    """The form page plus the prediction result for one ticket.
+
+    The result region uses aria-live="polite" so a screen
+    reader announces the prediction when it appears, and the
+    low-confidence warning uses role="alert". The first line
+    inside the result is a plain-English summary sentence.
+    """
     warning_html = ""
     if result["warning"]:
         warning_html = (
-            f'<p class="warning">Warning: {html.escape(result["warning"])}</p>\n'
+            f'<p class="warning" role="alert">'
+            f"Warning: {html.escape(result['warning'])}</p>\n"
         )
     body = (
         '<p><a href="/">Try another ticket</a></p>\n'
         + _samples_html()
         + _FORM.format(text=html.escape(result["text"]))
-        + '<div class="result">\n'
+        + '<div class="result" aria-live="polite">\n'
+        f"<p><strong>{html.escape(summary_sentence(result))}</strong></p>\n"
         f"<p>Ticket: <blockquote>{html.escape(result['text'])}</blockquote></p>\n"
         + _confidence_html(
             "Category",

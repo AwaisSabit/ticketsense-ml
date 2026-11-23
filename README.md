@@ -4,34 +4,28 @@ Classify support tickets and predict priority — a first-pass
 suggestion for a small support team, not an automatic decision.
 
 **Status: work in progress.** Built as part of a 30-day portfolio
-challenge, Nov–Dec 2026. Repo skeleton, target labels, a synthetic
-demo dataset, a tested data-loading module, and an exploratory
-analysis with a report (`reports/eda.md`) and balance charts exist.
-A first baseline model is trained: TF-IDF + Logistic Regression,
-one pipeline for category and one for priority, evaluated on a
-held-out test set — see `reports/evaluation.md` for the numbers.
-The saved pipelines live in `models/` (local only, git-ignored).
-The baseline's errors are analysed in `reports/error_analysis.md`
-(which tickets it gets wrong, the confusion pairs and the weak
-spots), with confusion-matrix charts in `reports/`, and a second
-baseline (TF-IDF + Naive Bayes, same split) is compared there —
-Logistic Regression stays the baseline. Prediction now works:
-`PYTHONPATH=src python -m ticketsense.predict "ticket text"`
-prints the predicted category and priority with a confidence
-score for each, plus a plain-English low-confidence warning
-when either score is below its threshold (category 0.30,
-priority 0.45 — measured on the held-out test set, because
-this model's probabilities are compressed and a single 0.6
-threshold would flag every prediction). Sample predictions
-with their confidences are in `reports/prediction_examples.md`. A small
-demo web page serves the same predictions — each confidence as
-a percentage with a visual bar and the threshold it is judged
-against in plain words, plus the low-confidence warning — and
-the result page offers a "Try another ticket" link and the six
-sample tickets to try another in one click; see the demo section
-below. The project is also packaged for install: `pip install -e .`
-installs it as `ticketsense` with the `ticketsense-train`,
-`ticketsense-predict` and `ticketsense-demo` commands.
+challenge, Nov–Dec 2026. What exists now: a 200-ticket synthetic
+demo dataset with a tested loader, an exploratory analysis
+(`reports/eda.md`) with balance charts, and a trained baseline —
+TF-IDF + Logistic Regression, one pipeline for category and one
+for priority. On 40 held-out tickets it scores category accuracy
+0.85 and priority accuracy 0.525 (see `reports/evaluation.md`).
+Its errors are analysed in `reports/error_analysis.md`, with
+confusion-matrix charts, and a Naive Bayes second baseline on the
+same split scored lower on both tasks, so Logistic Regression
+stays the baseline. Prediction works from the command line
+(`PYTHONPATH=src python -m ticketsense.predict "ticket text"`)
+and through a small demo web page: each prediction comes with a
+confidence score and a plain-English low-confidence warning when
+either score is below its threshold (category 0.30, priority
+0.45 — measured on the held-out test set, because this model's
+probabilities are compressed and a single 0.6 threshold would
+flag every prediction). Sample predictions are in
+`reports/prediction_examples.md`. The saved pipelines live in
+`models/` (local only, git-ignored). The project is packaged for
+install: `pip install -e .` installs it as `ticketsense` with
+the `ticketsense-train`, `ticketsense-predict` and
+`ticketsense-demo` commands.
 
 ## Problem
 
@@ -76,10 +70,11 @@ ticketsense-ml/
 ├── data/
 │   ├── demo_tickets.csv   # 200 hand-written synthetic demo tickets
 │   └── README.md          # schema, labels, licensing, limitations
-├── notebooks/             # exploration
+├── notebooks/             # empty for now — exploration lives in reports/eda.md
 ├── src/ticketsense/
+│   ├── __init__.py        # version and label constants
 │   ├── data.py            # load + validate + summarise (tested)
-│   ├── features.py        # text cleaning; TF-IDF to follow
+│   ├── features.py        # text cleaning; also the TF-IDF preprocessor
 │   ├── explore.py         # exploratory analysis + report (tested)
 │   ├── train.py           # stratified split + TF-IDF + Logistic Regression baseline (tested)
 │   ├── evaluate.py        # held-out evaluation + report (tested)
@@ -93,6 +88,7 @@ ticketsense-ml/
 │                          # (error_analysis.md) + confusion charts
 │                          # + sample predictions (prediction_examples.md)
 ├── tests/                 # pytest tests
+├── .github/workflows/ci.yml  # CI (Python 3.11 + 3.12, pytest) — local only, not pushed
 ├── pyproject.toml         # package metadata, dependencies, console commands
 ├── requirements.txt       # pinned dev install (same versions as pyproject.toml, plus pytest)
 ├── .gitignore
@@ -137,7 +133,12 @@ PYTHONPATH=src python -m ticketsense.errors
 
 # Predict one ticket: category and priority with a confidence
 # score for each, and a low-confidence warning when either score
-# is below its threshold (category 0.30, priority 0.45)
+# is below its threshold (category 0.30, priority 0.45). The
+# output starts with a one-line plain-English summary ("This
+# looks like a billing ticket, medium priority.") and then
+# clearly labelled lines for the category, the priority, each
+# confidence as a percentage with the bar it is judged against,
+# and the warning when it applies.
 PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please refund me"
 
 # Start the demo web page (FastAPI + uvicorn) on
@@ -148,6 +149,13 @@ PYTHONPATH=src python -m ticketsense.predict "my card was charged twice, please 
 # warning when it applies, and the submitted text back. The
 # result page also offers a "Try another ticket" link back to
 # the form and the six sample tickets as clickable buttons.
+# The result page starts with a one-line plain-English summary
+# ("This looks like a billing ticket, medium priority."). The
+# page is built to be usable with a screen reader: the text box
+# has a label, the Predict button has a clear name, the result
+# region is announced live, the low-confidence warning and the
+# error messages are announced as alerts, and each confidence
+# bar is paired with a visible percentage (never colour-only).
 # Six sample tickets (one per category plus a vague one, from
 # `src/ticketsense/samples.py`) are shown as clickable buttons
 # above the form so the demo can be tried without typing.
@@ -176,6 +184,12 @@ PYTHONPATH=src python -m ticketsense.app
 # Run the tests
 PYTHONPATH=src python -m pytest -q
 ```
+
+# Continuous integration is defined in
+# `.github/workflows/ci.yml` (Python 3.11 and 3.12, install the
+# package, run the tests). It is local only: the GitHub snapshot
+# push cannot carry workflow files, so it is not on the remote
+# repo.
 
 Expected output: 200 rows, 0 missing values, 0 duplicates,
 category 40 each, priority high 48 / medium 75 / low 77. Baseline

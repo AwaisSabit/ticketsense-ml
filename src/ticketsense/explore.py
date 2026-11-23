@@ -204,7 +204,8 @@ def write_report(df: pd.DataFrame, path: str | Path = DEFAULT_REPORT_PATH) -> Pa
     lines.append(
         f"This report describes the {result['n_rows']} demo tickets in "
         "`data/demo_tickets.csv`. It is a description of the data, "
-        "not an evaluation of any model — no model is trained yet."
+        "not an evaluation of any model — for the baseline results, "
+        "see `reports/evaluation.md`."
     )
     lines.append("")
 
@@ -313,9 +314,9 @@ def write_report(df: pd.DataFrame, path: str | Path = DEFAULT_REPORT_PATH) -> Pa
         "medium 75, low 77) is a starting point, not a ground truth."
     )
     lines.append(
-        "- Nothing in this report is a performance claim. The next "
-        "step is a train/test split and a baseline model, judged "
-        "against this same small set with those limits in mind."
+        "- Nothing in this report is a performance claim. The baseline "
+        "trained on this set is judged in `reports/evaluation.md`, "
+        "with those limits in mind."
     )
     lines.append("")
 

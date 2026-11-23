@@ -1,6 +1,6 @@
 # TicketSense — exploratory analysis
 
-This report describes the 200 demo tickets in `data/demo_tickets.csv`. It is a description of the data, not an evaluation of any model — no model is trained yet.
+This report describes the 200 demo tickets in `data/demo_tickets.csv`. It is a description of the data, not an evaluation of any model — for the baseline results, see `reports/evaluation.md`.
 
 ## Dataset overview
 
@@ -113,4 +113,4 @@ Words are lower-cased and cleaned, common English stopwords are removed, and onl
 - The set is **clean and hand-written**: every ticket is one tidy English sentence, with no typos, no order numbers and no personal data. Real tickets are messier than this.
 - The categories are **perfectly balanced** (40 tickets each) because the set was built that way, not because real queues look like that. A model that does well here has only shown it can separate tidy, evenly spread examples.
 - Priority labels are one person's judgement, not a support team's agreed policy, so the priority split (high 48, medium 75, low 77) is a starting point, not a ground truth.
-- Nothing in this report is a performance claim. The next step is a train/test split and a baseline model, judged against this same small set with those limits in mind.
+- Nothing in this report is a performance claim. The baseline trained on this set is judged in `reports/evaluation.md`, with those limits in mind.

@@ -774,3 +774,194 @@
 ### Next steps — Day 12 (TicketSense)
 - README/docs polish, then a full-test bug-fix pass (with
   ClientFlow and RepoDoctor, per the compressed schedule).
+
+## Day 12 — 2026-11-22 (TicketSense)
+
+### What was done
+- README polish: the long status paragraph — one rambling
+  run-on restating the whole project — is rewritten as a short
+  status summary that keeps every fact (200-ticket synthetic
+  set, trained TF-IDF + Logistic Regression baseline, category
+  0.85 / priority 0.525 on 40 held-out tickets, error analysis
+  and Naive Bayes comparison, prediction with measured
+  thresholds, demo page, packaging with console commands).
+  The layout tree is fixed too: `notebooks/` is empty, so it no
+  longer says "exploration" (that lives in `reports/eda.md`),
+  `__init__.py` is listed, and the `features.py` line no longer
+  says "TF-IDF to follow" — the TF-IDF pipeline exists and uses
+  `clean_text` as its preprocessor. No day numbers in any README.
+- Full-test bug-fix pass — the pipeline was exercised end to
+  end, not just trusted from the suite:
+  - Retrained from scratch and re-evaluated: category accuracy
+    0.8500, priority accuracy 0.5250, exactly the numbers in
+    `reports/evaluation.md`. The regenerated evaluation and
+    error-analysis reports and both saved pipelines are
+    byte-identical to the committed ones (sha256 check), so no
+    report drift and no model change.
+  - Predictions on tricky inputs, all sensible: punctuation-only
+    ("!!! ??? ...") predicts with a warning on both halves;
+    Roman Urdu ("mera parcel abhi tak nahi aaya...") predicts
+    delivery and warns on priority; Urdu script predicts with a
+    warning on both halves; a ~10,000-character repeated ticket
+    predicts billing and warns on priority; empty and
+    whitespace-only text exit 1 with "Ticket text must not be
+    empty".
+  - Live demo server: home page 200 with all six sample buttons
+    and the JSON link; JSON API returns billing 0.38 / medium
+    0.40 with the priority warning and both threshold fields
+    and notes; empty text answers 400 on both the form and the
+    API (and 400 with no `text` param at all); a form post for
+    the vague ticket shows the warning and the "Try another
+    ticket" link. With both model files moved aside, the API
+    answers 503 and the form shows the "Train the baseline
+    first" message (the home page still loads, by design) — the
+    models were regenerated afterwards by retraining, and the
+    regenerated files are byte-identical to the ones moved
+    aside, so nothing was lost.
+  - All five sample predictions in
+    `reports/prediction_examples.md` were re-run and match the
+    file exactly. `pip check` is clean; `requirements.txt` and
+    `pyproject.toml` still agree (the packaging test checks
+    this on every run).
+- One real bug found and fixed: the exploration report claimed
+  "no model is trained yet" and promised "The next step is a
+  train/test split and a baseline model" — both false since the
+  baseline was trained and evaluated. The wording lives in
+  `explore.py`'s `write_report()`, so the fix is in the code:
+  the report now says it is a description of the data, not an
+  evaluation, and points at `reports/evaluation.md` for the
+  baseline results. `reports/eda.md` was regenerated — its
+  diff is exactly those two lines, and all the numbers in it
+  were already current. A regression test pins the fix: the
+  generated report must not say "no model is trained yet" or
+  promise a future train/test split, and must name the
+  evaluation report.
+- Stale module docstrings fixed with the same pass:
+  `features.py` still called itself a skeleton with the baseline
+  "to follow"; `data.py` called the demo file "The Day 1 file"
+  (it is 200 tickets now, not 50) and its `summarise()` docstring
+  pointed at notebooks that do not exist. Both now state the
+  current facts. No other inaccuracy was found: the README
+  "Expected output" numbers, the `data/README.md` balance and
+  schema, and the limitations sections all still match the code
+  and the reports, so they were left alone. No new features were
+  built — polish and bug fixes only.
+
+### Tests / checks run (Day 12, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **149 passed** (148 before + 1 new regression test in
+  `tests/test_explore.py`)
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.train` →
+  Train: 160 tickets; test: 40 tickets; both pipelines saved
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.evaluate`
+  → Category accuracy: 0.8500; Priority accuracy: 0.5250
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.errors` →
+  Category misclassified: 6 of 40; Priority misclassified: 19
+  of 40; Naive Bayes category 0.8250, priority 0.5000
+- `PYTHONPATH=src .venv/bin/python -m ticketsense.explore` →
+  Rows: 200; both charts and `reports/eda.md` written
+- Live demo checks as listed above, including the missing-model
+  503 behaviour; the server was stopped after each check.
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged;
+  the regenerated chart PNGs are byte-identical to the
+  committed ones. The warnings in the test run come from the
+  pinned library versions and already appear in earlier runs —
+  they are not caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 12.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push.
+
+### Next steps — Day 13 (TicketSense)
+- Accessibility/demo UX/output readability, then CI workflows
+  (with ClientFlow and RepoDoctor, per the compressed schedule).
+
+## Day 13 — 2026-11-23 (TicketSense)
+
+### What was done
+- Demo page accessibility in `src/ticketsense/app.py`
+  (FastAPI demo, inline HTML kept as it was — no framework
+  change):
+  - The ticket text box already had a `<label for="text">`;
+    it is now pinned by a test, and the Predict button keeps
+    its clear text name ("Predict"). Each sample ticket button
+    keeps its label as its accessible name (the visible text
+    inside the button).
+  - The result region now uses `aria-live="polite"`, so a
+    screen reader announces the prediction when it appears.
+  - Confidence bars are paired with visible text percentages
+    (already shown next to the bar) and the bar itself now
+    carries the same percentage as an accessible label
+    (`role="img"`, `aria-label="Category confidence 44%"`) —
+    never colour-only.
+  - The low-confidence warning uses `role="alert"`, and the
+    empty-text / missing-model error messages on the form page
+    use `role="alert"` too, so both are announced as soon as
+    the page loads.
+  - The page already had `<html lang="en">` and a proper
+    `<title>`; both are now pinned by tests. The "Try another
+    ticket" link still works as before.
+- Output readability:
+  - New `summary_sentence()` in `src/ticketsense/predict.py`:
+    the result page starts with one plain-English sentence,
+    e.g. "This looks like a billing ticket, medium priority."
+    (with "an" for vowel-starting categories — "an other
+    ticket", "an account ticket").
+  - `format_prediction()` — the command-line output — now
+    starts with that summary sentence, then clearly labelled
+    lines: the category and priority with their two-decimal
+    confidences (unchanged format), each confidence again as a
+    percentage with the bar it is judged against in plain
+    words ("Category confidence 44% — above the 30% bar, so
+    this looks fairly sure"), and the warning when it applies.
+  - The confidence note moved from `app.py` to `predict.py`
+    so the page and the command line share one wording; the
+    JSON endpoint is unchanged (same 11 fields, no summary
+    field — pinned by a test).
+- CI workflow at `.github/workflows/ci.yml`: Python 3.11 and
+  3.12, `pip install -e .`, pytest 8.3.3, then
+  `PYTHONPATH=src python -m pytest -q`. LOCAL ONLY — the
+  GitHub snapshot push cannot carry workflow files, so this
+  file is never pushed to GitHub; that is recorded in the
+  workflow file itself, in the README and here.
+- README updated (no day numbers): layout tree lists the CI
+  file, the demo section covers the accessibility features
+  and the summary sentence, the CLI section covers the new
+  labelled output, and the CI note records the local-only
+  status.
+
+### Tests / checks run (Day 13, local venv `.venv`, Python 3.12.3)
+- `PYTHONPATH=src .venv/bin/python -m pytest -q`
+  → **162 passed** (149 before + 13 new in
+  `tests/test_demo_accessibility.py`: page language and title,
+  associated label on the text box, Predict button name,
+  accessible names on all six sample buttons, aria-live on
+  the result region, summary sentence on the result page,
+  bars paired with visible percentages and accessible labels,
+  role="alert" on the warning and on empty-text errors,
+  summary sentence and labelled lines in the formatted
+  prediction and the CLI output, and the JSON key set
+  unchanged)
+- Live CLI check: `PYTHONPATH=src python -m ticketsense.predict
+  "my card was charged twice, please refund me"` →
+  "This looks like a billing ticket, medium priority.",
+  billing 0.44 / medium 0.42, priority warning; the vague
+  ticket warns on both halves with the summary "This looks
+  like an other ticket, high priority."
+- `git diff --check` — clean; no secrets in the diff; model
+  binaries (`.joblib`) confirmed git-ignored and not staged.
+  The warnings in the test run come from the pinned library
+  versions and already appear in earlier runs — they are not
+  caused by the new code.
+
+### Commits (local only — nothing pushed)
+- See `git log --oneline` in this repo. 3 real commits on Day 13.
+- **Not pushed:** local commits only, as instructed; the parent
+  run does the push. The `.github/workflows/ci.yml` file is
+  committed locally but must stay out of the snapshot push.
+
+### Next steps — Day 14 (TicketSense)
+- Packaging / release polish toward the v1.0.0 release on
+  Day 15, per the compressed schedule.

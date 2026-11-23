@@ -207,14 +207,72 @@ def predict_text(text: str, **kwargs) -> dict:
     return predict_ticket(text, **kwargs)
 
 
+def summary_sentence(result: dict) -> str:
+    """One plain-English sentence summarising a prediction.
+
+    Returns e.g. "This looks like a billing ticket, medium
+    priority." — the first thing a non-technical reader sees,
+    on the demo result page and in the command-line output.
+    """
+    article = "an" if result["category"][0] in "aeiou" else "a"
+    return (
+        f"This looks like {article} {result['category']} ticket, "
+        f"{result['priority']} priority."
+    )
+
+
+def confidence_note(task: str, confidence: float, threshold: float) -> str:
+    """Plain-English note comparing one confidence with its threshold.
+
+    Args:
+        task: "Category" or "Priority" — the first word of the note.
+        confidence: The confidence score, 0 to 1.
+        threshold: The bar this task's confidence is judged against.
+
+    Returns:
+        A sentence like "Category confidence 44% — above the 30%
+        bar, so this looks fairly sure", or the below-the-bar
+        version when the score is under the threshold.
+    """
+    percent = round(confidence * 100)
+    bar = f"{round(threshold * 100)}%"
+    if confidence >= threshold:
+        return (
+            f"{task} confidence {percent}% — above the {bar} bar, "
+            "so this looks fairly sure"
+        )
+    return (
+        f"{task} confidence {percent}% — below the {bar} bar, "
+        "so treat this with care"
+    )
+
+
 def format_prediction(result: dict) -> str:
-    """Render a prediction result as plain-English lines."""
+    """Render a prediction result as plain-English lines.
+
+    The first line is a one-sentence summary a non-technical
+    reader can follow, then clearly labelled lines for the
+    category, the priority, each confidence as a percentage
+    with the bar it is judged against, and the warning when
+    confidence is low.
+    """
     lines = [
+        summary_sentence(result),
         f"Ticket: {result['text']}",
         f"Category: {result['category']} "
         f"(confidence {result['category_confidence']:.2f})",
+        confidence_note(
+            "Category",
+            result["category_confidence"],
+            LOW_CONFIDENCE_CATEGORY,
+        ),
         f"Priority: {result['priority']} "
         f"(confidence {result['priority_confidence']:.2f})",
+        confidence_note(
+            "Priority",
+            result["priority_confidence"],
+            LOW_CONFIDENCE_PRIORITY,
+        ),
     ]
     if result["warning"]:
         lines.append(f"Warning: {result['warning']}")

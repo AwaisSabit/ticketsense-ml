@@ -139,6 +139,19 @@ def test_report_is_written_and_contains_key_sections(tmp_path):
     assert "Nothing in this report is a performance claim" in text
 
 
+def test_report_does_not_claim_no_model_is_trained(tmp_path):
+    # The report describes the data only; it must not claim no
+    # model exists (a baseline is trained and evaluated) and must
+    # point at the evaluation report instead of promising a
+    # future train/test split.
+    df = load_tickets(DATA)
+    report = write_report(df, tmp_path / "eda.md")
+    text = report.read_text(encoding="utf-8")
+    assert "no model is trained yet" not in text
+    assert "The next step is a train/test split" not in text
+    assert "reports/evaluation.md" in text
+
+
 def test_report_references_charts_when_they_exist(tmp_path):
     df = load_tickets(DATA)
     make_charts(df, tmp_path)

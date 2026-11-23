@@ -1,6 +1,6 @@
 """Data loading and validation for TicketSense.
 
-Target labels (defined on Day 1, frozen for the baseline):
+Target labels (frozen for the baseline):
 
 Categories (``category``):
     * ``billing``   -- payments, invoices, refunds, charges, subscriptions
@@ -17,9 +17,10 @@ Priorities (``priority``):
     * ``low``    -- a question, a small request, or a nice-to-have
       (for example opening hours, a profile-photo update, a suggestion).
 
-The Day 1 file is a small hand-written synthetic demonstration set
-(see ``data/README.md``). It is NOT real customer data, and a model
-trained on it must not be presented as production-ready.
+The demo file is a hand-written synthetic demonstration set of
+200 tickets (see ``data/README.md``). It is NOT real customer
+data, and a model trained on it must not be presented as
+production-ready.
 """
 
 from __future__ import annotations
@@ -82,7 +83,7 @@ def load_tickets(path: str | Path = DEFAULT_PATH) -> pd.DataFrame:
 def summarise(df: pd.DataFrame) -> dict:
     """Report row count, missing values, duplicates and class balance.
 
-    Returns a plain dict (no printing) so tests and Day 2 notebooks can
+    Returns a plain dict (no printing) so tests and other modules can
     reuse it. Duplicates here are counted on the full row, after the
     strict ``load_tickets`` checks have already rejected duplicate ids.
     """

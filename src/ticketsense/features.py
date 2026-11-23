@@ -1,11 +1,8 @@
-"""Text features for TicketSense (Day 1 skeleton — baseline in Day 6).
+"""Text features for TicketSense.
 
-The baseline planned in the 30-day plan is TF-IDF + Logistic
-Regression. This module will own the vectoriser so training and
-prediction always use the same preprocessing (no leakage).
-
-Day 1: only the shared text-cleaning helper is implemented.
-The TF-IDF pipeline itself lands with the baseline on Day 5-6.
+The shared text-cleaning helper lives here, and it is also the
+preprocessor the TF-IDF vectoriser in ``ticketsense.train`` uses,
+so training and prediction always clean text the same way.
 """
 
 from __future__ import annotations
